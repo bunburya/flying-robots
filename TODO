@@ -1,0 +1,15 @@
+TODO ASAP:
+
+- Player can't move along the z-axis, fix this.
+
+- Player dies when he moves into junk, fix this.
+
+- Info grid.
+
+- Proper game over screen, including prompt to play again.
+
+- More robots/more sensible calculation.
+
+- Jump to an arbitrary elevation.
+
+- Fast robots.
