@@ -1,13 +1,10 @@
 import random
 from copy import deepcopy
 
-from chars import Player, Robot, Junk, gameclass
+from chars import Player, Robot, TestRobot, Junk, gameclass
+from exceptions import BadTileError, LevelComplete, GameOver
 
-class BadTileError(Exception): pass
-
-class LevelComplete(Exception): pass
-
-class GameOver(Exception): pass
+from debug import log
 
 class BaseGrid:
     
@@ -49,15 +46,30 @@ class BaseGrid:
     
     def _set_tile(self, coords, new=None):
         x, y, z = coords
+        incumbent = self._get_tile(coords)
+        if gameclass(incumbent) != 'empty':
+            if gameclass(new) == 'player':
+                raise BadTileError('Player cannot move onto tile at {},{},{}: Tile occupied.'.format(x, y, x))
+            collision_imminent = True
+        else:
+            collision_imminent = False
         if not min(coords) >= 0:
             # This initial sanity check is necessary because negative list
             # indices don't raise an IndexError, but rather return (in this
             # case) undesired results.
+            log('oops!')
             raise BadTileError('Cannot set tile at {},{},{}: Tile not in grid'.format(x, y, z))
         try:
             self._grid[z][y][x] = new
         except IndexError:
             raise BadTileError('Cannot set tile at {},{},{}: Tile not in grid'.format(x, y, z))
+        
+        if new is not None and new.coords != coords:
+            old_coords = new.coords
+            new.coords = coords
+            self._set_tile(old_coords, None)
+            if collision_imminent:
+                self.collision(new, incumbent)
     
     def _get_tile(self, coords):
         x, y, z = coords
@@ -114,6 +126,20 @@ class GameGrid(BaseGrid):
         self._set_tile(coords, self.player)
         self._objects.add(self.player)
     
+    def populate_test(self, enemies):
+        self._grid = self._copy_empty_grid()
+        _enemies = set()
+        coords = self._get_random_empty_coords()
+        robot = TestRobot(coords, self)
+        _enemies.add(robot)
+        self._set_tile(coords, robot)
+        self._enemies = _enemies
+        self._objects = deepcopy(_enemies)
+        coords = self._get_random_empty_coords()
+        self.player = Player(coords, self)
+        self._set_tile(coords, self.player)
+        self._objects.add(self.player)
+    
     def collision(self, obj1, obj2):
         player = gameclass(Player)
         junk = gameclass(Junk)
@@ -136,7 +162,7 @@ class GameGrid(BaseGrid):
         for e in enemies:
             e.is_alive = False
             self._game.score += e.KILLSCORE
-
+        
     def move_enemies(self):
         for e in self._enemies:
             e.move()

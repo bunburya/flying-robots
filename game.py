@@ -1,5 +1,6 @@
 from chars import gameclass
-from grid import GameGrid, BadTileError, LevelComplete, GameOver
+from grid import GameGrid
+from exceptions import BadTileError, LevelComplete, GameOver
 from config import get_config
 
 def calc_enemies(level):
@@ -20,7 +21,8 @@ class Game:
         z = config['size'].getint('z')
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
-        self._grid.populate(calc_enemies(start_level))
+        #self._grid.populate(calc_enemies(start_level))
+        self._grid.populate_test(calc_enemies(start_level))
         self.player = self._grid.player
         self.elev = self.player.coords[2]
         self.zoom_to_player_on_move = config['view'].getboolean('zoom_to_player_on_move')
@@ -37,10 +39,11 @@ class Game:
         try:
             self.player.move(dx, dy, dz)
         except BadTileError:
-            return
+            return False
         self._grid.move_enemies()
         if self.zoom_to_player_on_move:
             self.zoom_to_player()
+        return True
     
     def next_level(self):
         self.level += 1

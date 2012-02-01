@@ -2,10 +2,11 @@
 
 import curses
 
-# def_x and def_y are default grid width and height; eventually,
-# we should get these from a config file.
-from game import Game, LevelComplete, GameOver
+from game import Game
+from exceptions import LevelComplete, GameOver
 from chars import gameclass
+
+from debug import log
 
 def ctrl(ch):
     return chr(ord(ch)-96)
@@ -14,7 +15,7 @@ def unctrl(ch):
     return chr(ord(ch)+96) if is_ctrl(ch) else ch
 
 def is_ctrl(ch):
-    return 1 >= ord(ch) >= 26
+    return 1 <= ord(ch) <= 26
 
 class GameInterface:
     
@@ -33,7 +34,8 @@ class GameInterface:
         'b':    (-1, 1),
         'n':    (1, 1),
         'y':    (-1, -1),
-        'u':    (1, -1)
+        'u':    (1, -1),
+        'x':    (0, 0)
         }
     
     yn_vals = {
@@ -86,19 +88,24 @@ class GameInterface:
             self.stdscr.refresh()
 
     def handle_cmd(self, cmd):
-        if unctrl(cmd) in self.xy_move_keys:
+        log('command received: {}'.format(ord(cmd)))
+        log(ord(unctrl(cmd)))
+        if unctrl(cmd).lower() in self.xy_move_keys:
             self.move(cmd)
         elif cmd in self.nonmove_cmds:
             self.nonmove_cmds[cmd]()
     
     def move(self, cmd):
+        log('command is {}'.format(cmd))
+        log('ord is {}'.format(ord(cmd)))
         if is_ctrl(cmd):
+            log('ctrl-{} detected.'.format(unctrl(cmd)))
             z = -1
         elif cmd.isupper():
             z = 1
         else:
             z = 0
-        x, y = self.xy_move_keys[unctrl(cmd)]
+        x, y = self.xy_move_keys[unctrl(cmd).lower()]
         try:
             self.game.move_player(x, y, z)
         except GameOver:
@@ -136,15 +143,17 @@ class GameInterface:
         self.update_grid()
 
     def on_game_over(self):
-        self.quit()
+        self.quit('You died!')
     
     def prompt_quit(self):
         if self.get_yn('Really quit? (y/N)', False):
             self.quit()
 
-    def quit(self, status=0):
+    def quit(self, msg=None, status=0):
         self.stdscr.keypad(0)
         curses.nocbreak()
         curses.echo()
         curses.endwin()
+        if msg is not None:
+            print(msg)
         quit(status)
