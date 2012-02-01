@@ -54,6 +54,7 @@ class GameInterface:
         self.setup_nonmove_cmds()
         self.setup_windows()
         self.update_grid()
+        self.update_info()
         self.stdscr.refresh()
         self.mainloop()
     
@@ -62,6 +63,8 @@ class GameInterface:
         self.grid_win = self.stdscr.subwin(y+2, x+2, 0, 0)
         self.grid_win.border()
         # Also add in info grid.
+        self.info_win = self.stdscr.subwin(y+2, 20, 0, x+3)
+        self.info_win.border()
     
     def setup_nonmove_cmds(self):
         """Here we bind keys to their functions."""
@@ -80,6 +83,14 @@ class GameInterface:
             self.grid_win.addstr(row_num+1, 1, ''.join(chars))
         self.grid_win.noutrefresh()
     
+    def update_info(self):
+        self.info_win.erase()
+        self.info_win.addstr(1, 1, 'Player coords:')
+        self.info_win.addstr(2, 1, '({}, {}, {})'.format(*self.game.player.coords))
+        self.info_win.addstr(4, 1, 'Viewing elev:')
+        self.info_win.addstr(5, 1, str(self.game.elev))
+        self.info_win.noutrefresh()
+    
     def mainloop(self):
         while True:
             y, x = reversed(self.game.player.coords[:2])
@@ -94,6 +105,7 @@ class GameInterface:
             self.move(cmd)
         elif cmd in self.nonmove_cmds:
             self.nonmove_cmds[cmd]()
+        self.update_info()
     
     def move(self, cmd):
         log('command is {}'.format(cmd))
