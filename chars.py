@@ -45,8 +45,6 @@ class BaseMoveableObject(BaseObject):
     """A base class representing anything that can move on a grid."""
 
     def _move_to(self, new_coords):
-        if self.CLASS == 'player':
-            log('moving to {}'.format(new_coords))
         # Following code raises BadTileError is tile is OOB, halting move.
         self._grid._set_tile(new_coords, self)
   
@@ -73,6 +71,7 @@ class Robot(BaseMoveableObject):
 
     def __init__(self, coords, grid, speed=1):
         self._speed = speed
+        self.colliding_with = None
         BaseEnemy.__init__(self, coords, grid)
     
     def _move_towards_player(self):

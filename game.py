@@ -58,3 +58,7 @@ class Game:
     
     def view_grid(self):
         return self._grid.view_plan(self.elev)
+    
+    @property
+    def enemy_count(self):
+        return len(self._grid._enemies)

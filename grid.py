@@ -46,18 +46,33 @@ class BaseGrid:
     
     def _set_tile(self, coords, new=None):
         x, y, z = coords
-        incumbent = self._get_tile(coords)
-        if gameclass(incumbent) != 'empty':
-            if gameclass(new) == 'player':
-                raise BadTileError('Player cannot move onto tile at {},{},{}: Tile occupied.'.format(x, y, x))
-            collision_imminent = True
-        else:
-            collision_imminent = False
+        if new is not None:
+            incumbent = self._get_tile(coords)
+            new_class = gameclass(new)
+            incumbent_class = gameclass(incumbent)
+            if incumbent_class != 'empty' and new_class != 'junk':
+                # Moveable object is being moved onto a tile where another
+                # object already stands.
+                if new_class == 'player':
+                    raise BadTileError('Player cannot move onto tile at {},{},{}: Tile occupied.'.format(x, y, x))
+                elif incumbent_class == 'player':
+                    # Robot collision with player; player dies, game over.
+                    raise GameOver('You died!')
+                elif incumbent_class == 'junk':
+                    # Robot collision with junk; robot definitely dies.
+                    self.kill(new)
+                else:
+                    # Robot collision with robot; robots *might* die, unless
+                    # incumbent robot has yet to move.
+                    # Store the robots in self.to_collide and check again after
+                    # all robots have moved.
+                    if new not in self.to_collide:
+                        self.to_collide[incumbent] = new
+                        log('possible collision.')
         if not min(coords) >= 0:
             # This initial sanity check is necessary because negative list
             # indices don't raise an IndexError, but rather return (in this
             # case) undesired results.
-            log('oops!')
             raise BadTileError('Cannot set tile at {},{},{}: Tile not in grid'.format(x, y, z))
         try:
             self._grid[z][y][x] = new
@@ -68,8 +83,6 @@ class BaseGrid:
             old_coords = new.coords
             new.coords = coords
             self._set_tile(old_coords, None)
-            if collision_imminent:
-                self.collision(new, incumbent)
     
     def _get_tile(self, coords):
         x, y, z = coords
@@ -130,7 +143,13 @@ class GameGrid(BaseGrid):
         self._grid = self._copy_empty_grid()
         _enemies = set()
         coords = self._get_random_empty_coords()
-        robot = TestRobot(coords, self)
+        coords[2] = 4
+        robot = Robot(coords, self)
+        _enemies.add(robot)
+        self._set_tile(coords, robot)
+        coords = [c+1 for c in coords]
+        coords[2] = 4
+        robot = Robot(coords, self)
         _enemies.add(robot)
         self._set_tile(coords, robot)
         self._enemies = _enemies
@@ -140,32 +159,50 @@ class GameGrid(BaseGrid):
         self._set_tile(coords, self.player)
         self._objects.add(self.player)
     
-    def collision(self, obj1, obj2):
-        player = gameclass(Player)
-        junk = gameclass(Junk)
-        turn_score = 0
-        if (gameclass(obj1) == player) or (gameclass(obj2) == player):
-            raise GameOver('You died.')
-        elif gameclass(obj1) == junk:
-            self.kill(obj2)
-        elif gameclass(obj2) == junk:
-            self.kill(obj1)
-        else:
-            # Collision between two robots
-            self.kill(obj1, obj2)
-            coords = obj1.coords
-            j = Junk(coords, self)
-            self._set_tile(coords, j)
-            self._objects.add(j)
+    def collide(self, obj1, obj2, g_cls1=None, g_cls2=None):
+        g_cls1 = g_cls1 or gameclass(obj1)
+        g_cls2 = g_cls2 or gameclass(obj2)
+        log('collision between {} and {}.'.format(obj1, obj2))
+        if new_class == 'player':
+            raise BadTileError('Player cannot move onto tile at {},{},{}: Tile occupied.'.format(x, y, x))
+        elif incumbent_class == 'junk':
+            # Robot collision with junk; robot definitely dies.
+            self.kill(new)
+        elif incumbent_class == 'player':
+            # Robot collision with player; player dies, game over.
+            raise GameOver('You died!')
+    
+    def robot_collisions(self):
+        # This function goes through to_collide and calls the collision code
+        # on a pair of robots where they still occupy the same tile after all
+        # robots have moved.
+        log(self.to_collide)
+        for e in self.to_collide:
+            other = self.to_collide[e]
+            if e.coords == other.coords:
+                log('collision between {} and {}'.format(e, other))
+                self.kill(e)
+                self.kill(other)
+            else:
+                log('no collision between {} and {}'.format(e, other))
 
-    def kill(self, *enemies):
-        for e in enemies:
-            e.is_alive = False
-            self._game.score += e.KILLSCORE
+    def kill(self, enemy):
+        enemy.is_alive = False
+        self._game.score += enemy.KILLSCORE
+        coords = enemy.coords
+        j = Junk(coords, self)
+        self._set_tile(coords, j)
+        self._objects.discard(enemy)
+        self._objects.add(j)
+        # Killed object is not removed from self._enemies until after
+        # all enemies have moved, as the size of the set cannot be changed
+        # during iteration.
         
     def move_enemies(self):
+        self.to_collide = {}
         for e in self._enemies:
             e.move()
+        self.robot_collisions()
         dead_enemies = {e for e in self._enemies if not e.is_alive}
         self._enemies.difference_update(dead_enemies)
         self._objects.difference_update(dead_enemies)

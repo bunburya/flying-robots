@@ -89,6 +89,10 @@ class GameInterface:
         self.info_win.addstr(2, 1, '({}, {}, {})'.format(*self.game.player.coords))
         self.info_win.addstr(4, 1, 'Viewing elev:')
         self.info_win.addstr(5, 1, str(self.game.elev))
+        self.info_win.addstr(6, 1, 'Level:')
+        self.info_win.addstr(7, 1, str(self.game.level))
+        self.info_win.addstr(9, 1, 'Enemies:')
+        self.info_win.addstr(10, 1, str(self.game.enemy_count))
         self.info_win.noutrefresh()
     
     def mainloop(self):
@@ -99,8 +103,6 @@ class GameInterface:
             self.stdscr.refresh()
 
     def handle_cmd(self, cmd):
-        log('command received: {}'.format(ord(cmd)))
-        log(ord(unctrl(cmd)))
         if unctrl(cmd).lower() in self.xy_move_keys:
             self.move(cmd)
         elif cmd in self.nonmove_cmds:
@@ -108,10 +110,7 @@ class GameInterface:
         self.update_info()
     
     def move(self, cmd):
-        log('command is {}'.format(cmd))
-        log('ord is {}'.format(ord(cmd)))
         if is_ctrl(cmd):
-            log('ctrl-{} detected.'.format(unctrl(cmd)))
             z = -1
         elif cmd.isupper():
             z = 1
@@ -153,6 +152,7 @@ class GameInterface:
     def on_level_complete(self):
         self.game.next_level()
         self.update_grid()
+        self.update_info()
 
     def on_game_over(self):
         self.quit('You died!')
