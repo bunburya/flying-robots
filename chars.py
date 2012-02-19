@@ -46,13 +46,23 @@ class BaseMoveableObject(BaseObject):
 
     def _move_to(self, new_coords):
         # Following code raises BadTileError is tile is OOB, halting move.
-        self._grid._set_tile(new_coords, self)
-  
+        #self._grid._set_tile(new_coords, self)
+        
+        # _move_to should only change the coords as stored internally by
+        # the character. It should not call any methods from the grid.
+        
+        if self._grid.is_valid_tile(new_coords):
+            self._grid.clear_tile(self.coords)
+            self.coords = new_coords
 
-    def _move_by(self, dx, dy, dz):
-        """Arguments are changes in x, y, z coords respectively."""
+    def _move_by(self, dx, dy, dz, empty_only=False):
+        """Arguments are changes in x, y, z coords respectively.
+        If optional fourth empty_only arg is True, raises BadTileError if
+        tile being moved to is occupied. This is used when the player moves."""
         old = self.coords
         new = [old[0] + dx, old[1] + dy, old[2] + dz]
+        if empty_only and (not self._grid._tile_is_empty(new)):
+            raise BadTileError('Player cannot move onto occupied tile.')
         self._move_to(new)
 
 class BaseEnemy(BaseMoveableObject):
@@ -104,17 +114,8 @@ class Player(BaseMoveableObject):
     
     CLASS = 'player'
     
-    def _move_by(self, dx, dy, dz):
-        # Players have a special version of _move_by that first checks if
-        # the tile is empty.
-        old = self.coords
-        new = [old[0] + dx, old[1] + dy, old[2] + dz]
-        if not self._grid._tile_is_empty(new):
-            raise BadTileError('Player cannot move onto occupied tile.')
-        self._move_to(new)
-    
     def move(self, dx, dy, dz):
-        self._move_by(dx, dy, dz)
+        self._move_by(dx, dy, dz, True)
     
     def teleport(self):
         new = self._grid._get_random_empty_coords()

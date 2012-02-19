@@ -1,18 +1,7 @@
 TODO ASAP:
 
-- Collision handling has to be completely overhauled.
-  Currently, each tile can only hold one value so where two robots overlap
-  temporarily (ie before one has the chance to move away), only one is stored
-  on the tile, and when it moves away the tile is marked as empty.
-  Consider a solution where tiles can hold multiple values, or there is some
-  collection, global to the Grid class, that holds this data.
-  Also, BaseGrid._set_tile is doing too much; we have to separate it out into
-  different functions, to be called in different places.
-  
-  Possible solution: moving, colliding etc doesn't involve manipulation of the
-  grid, only of the objects involved (coords, is_alive etc). Then, after all
-  the moving and colliding is done, the objects are painted to the grid
-  according to their new attributes.
+- When advancing to next level, grid does not seem to be cleared
+  of junk of old robots; find out why, and fix.
 
 - More advanced info grid.
 

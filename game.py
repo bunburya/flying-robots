@@ -40,6 +40,7 @@ class Game:
             self.player.move(dx, dy, dz)
         except BadTileError:
             return False
+        self._grid.set_tile(self.player)
         self._grid.move_enemies()
         if self.zoom_to_player_on_move:
             self.zoom_to_player()

@@ -44,45 +44,34 @@ class BaseGrid:
     def _copy_empty_view(self, view):
         return [x[:] for x in [y[:] for y in view]]
     
-    def _set_tile(self, coords, new=None):
+    def set_tile(self, new):
+        coords = new.coords
+        incumbent = self._get_tile(coords)
+        incumbent_cls = gameclass(incumbent)
+        new_cls = gameclass(new)
+        # Player is prevented from moving onto occupied tile before this stage;
+        # therefore, if incumbent_cls != 'empty', new must be robot.
+        if (incumbent_cls == 'empty') or (new_cls == 'empty'):
+            self._set_tile(coords, new)
+        elif incumbent_cls == 'player':
+            # Robot collides with player; player dies, game over.
+            raise GameOver('You died!')
+        elif incumbent_cls == 'robot':
+            self.kill(incumbent)
+            self.kill(new)
+            j = Junk(coords, self)
+            self._set_tile(coords, j)
+            self._objects.add(j)
+        elif incumbent_cls == 'junk':
+            self.kill(new)
+    
+    def clear_tile(self, coords):
+        self._set_tile(coords, None)
+    
+    def _set_tile(self, coords, new):
+        # If coords is not specified
         x, y, z = coords
-        if new is not None:
-            incumbent = self._get_tile(coords)
-            new_class = gameclass(new)
-            incumbent_class = gameclass(incumbent)
-            if incumbent_class != 'empty' and new_class != 'junk':
-                # Moveable object is being moved onto a tile where another
-                # object already stands.
-                if new_class == 'player':
-                    raise BadTileError('Player cannot move onto tile at {},{},{}: Tile occupied.'.format(x, y, x))
-                elif incumbent_class == 'player':
-                    # Robot collision with player; player dies, game over.
-                    raise GameOver('You died!')
-                elif incumbent_class == 'junk':
-                    # Robot collision with junk; robot definitely dies.
-                    self.kill(new)
-                else:
-                    # Robot collision with robot; robots *might* die, unless
-                    # incumbent robot has yet to move.
-                    # Store the robots in self.to_collide and check again after
-                    # all robots have moved.
-                    if new not in self.to_collide:
-                        self.to_collide[incumbent] = new
-                        log('possible collision.')
-        if not min(coords) >= 0:
-            # This initial sanity check is necessary because negative list
-            # indices don't raise an IndexError, but rather return (in this
-            # case) undesired results.
-            raise BadTileError('Cannot set tile at {},{},{}: Tile not in grid'.format(x, y, z))
-        try:
-            self._grid[z][y][x] = new
-        except IndexError:
-            raise BadTileError('Cannot set tile at {},{},{}: Tile not in grid'.format(x, y, z))
-        
-        if new is not None and new.coords != coords:
-            old_coords = new.coords
-            new.coords = coords
-            self._set_tile(old_coords, None)
+        self._grid[z][y][x] = new
     
     def _get_tile(self, coords):
         x, y, z = coords
@@ -110,6 +99,10 @@ class BaseGrid:
     
     def _grid_is_empty(self):
         return self._grid == self._EMPTY_GRID
+    
+    def is_valid_tile(self, coords):
+        x, y, z = coords
+        return (min(coords) >= 0) and (x <= self.x) and (y <= self.y) and (z <= self.z)
 
 
 class GameGrid(BaseGrid):
@@ -187,22 +180,28 @@ class GameGrid(BaseGrid):
                 log('no collision between {} and {}'.format(e, other))
 
     def kill(self, enemy):
-        enemy.is_alive = False
-        self._game.score += enemy.KILLSCORE
-        coords = enemy.coords
-        j = Junk(coords, self)
-        self._set_tile(coords, j)
-        self._objects.discard(enemy)
-        self._objects.add(j)
         # Killed object is not removed from self._enemies until after
         # all enemies have moved, as the size of the set cannot be changed
         # during iteration.
-        
+        enemy.is_alive = False
+        self._game.score += enemy.KILLSCORE
+        coords = enemy.coords
+        self._objects.discard(enemy)            
+
     def move_enemies(self):
-        self.to_collide = {}
+        # Moving enemies has several stages.
+        # - Each enemy decides where it wants to move, and adjusts its
+        #   internally stored coords (obj.coords) accordingly.
+        #   Invalid moves must be detected and handled at this point, before
+        #   coords are changed.
+        # - After all enemies have adjusted their coords, each enemy is then
+        #   placed in its new position on the grid.
+        #   Collisions are handled at this point.
+        # - Dead enemies are removed from self._enemies.
         for e in self._enemies:
             e.move()
-        self.robot_collisions()
+        for e in self._enemies:
+            self.set_tile(e)
         dead_enemies = {e for e in self._enemies if not e.is_alive}
         self._enemies.difference_update(dead_enemies)
         self._objects.difference_update(dead_enemies)
