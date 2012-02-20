@@ -86,7 +86,7 @@ class GameInterface:
     def update_info(self):
         self.info_win.erase()
         self.info_win.addstr(1, 1, 'Player coords:')
-        self.info_win.addstr(2, 1, '({}, {}, {})'.format(*self.game.player.coords))
+        self.info_win.addstr(2, 1, '({}, {}, {})'.format(*self.game.player_coords))
         self.info_win.addstr(4, 1, 'Viewing elev:')
         self.info_win.addstr(5, 1, str(self.game.elev))
         self.info_win.addstr(6, 1, 'Level:')
@@ -97,7 +97,7 @@ class GameInterface:
     
     def mainloop(self):
         while True:
-            y, x = reversed(self.game.player.coords[:2])
+            y, x = reversed(self.game.player_coords[:2])
             cmd_key = chr(self.stdscr.getch(0, 0))
             self.handle_cmd(cmd_key)
             self.stdscr.refresh()

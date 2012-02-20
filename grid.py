@@ -39,37 +39,19 @@ class BaseGrid:
     def _copy_empty_grid(self):
         """Returns a deepcopy of the instance's empty grid; this is more
         efficient than generating a new one from scratch every time."""
-        return [x[:] for x in [y[:] for y in [z[:] for z in self._EMPTY_GRID]]]
+        #return [x[:] for x in [y[:] for y in [z[:] for z in self._EMPTY_GRID]]]
+        return deepcopy(self._EMPTY_GRID)
     
     def _copy_empty_view(self, view):
         return [x[:] for x in [y[:] for y in view]]
-    
-    def set_tile(self, new):
-        coords = new.coords
-        incumbent = self._get_tile(coords)
-        incumbent_cls = gameclass(incumbent)
-        new_cls = gameclass(new)
-        # Player is prevented from moving onto occupied tile before this stage;
-        # therefore, if incumbent_cls != 'empty', new must be robot.
-        if (incumbent_cls == 'empty') or (new_cls == 'empty'):
-            self._set_tile(coords, new)
-        elif incumbent_cls == 'player':
-            # Robot collides with player; player dies, game over.
-            raise GameOver('You died!')
-        elif incumbent_cls == 'robot':
-            self.kill(incumbent)
-            self.kill(new)
-            j = Junk(coords, self)
-            self._set_tile(coords, j)
-            self._objects.add(j)
-        elif incumbent_cls == 'junk':
-            self.kill(new)
     
     def clear_tile(self, coords):
         self._set_tile(coords, None)
     
     def _set_tile(self, coords, new):
         # If coords is not specified
+        if gameclass(new) == 'player':
+            log('painting {} to {}'.format(gameclass(new), coords))
         x, y, z = coords
         self._grid[z][y][x] = new
     
@@ -126,9 +108,11 @@ class GameGrid(BaseGrid):
             self._set_tile(coords, robot)
             enemies -= 1
         self._enemies = _enemies
+        log('new enemies set: {}'.format(_enemies))
         self._objects = deepcopy(_enemies)
         coords = self._get_random_empty_coords()
         self.player = Player(coords, self)
+        log('new player at {}'.format(self.player.coords))
         self._set_tile(coords, self.player)
         self._objects.add(self.player)
     
@@ -148,9 +132,34 @@ class GameGrid(BaseGrid):
         self._enemies = _enemies
         self._objects = deepcopy(_enemies)
         coords = self._get_random_empty_coords()
+        try:
+            del self.player
+        except AttributeError:
+            pass
         self.player = Player(coords, self)
         self._set_tile(coords, self.player)
         self._objects.add(self.player)
+    
+    def set_tile(self, new):
+        coords = new.coords
+        incumbent = self._get_tile(coords)
+        incumbent_cls = gameclass(incumbent)
+        new_cls = gameclass(new)
+        # Player is prevented from moving onto occupied tile before this stage;
+        # therefore, if incumbent_cls != 'empty', new must be robot.
+        if (incumbent_cls == 'empty') or (new_cls == 'empty'):
+            self._set_tile(coords, new)
+        elif incumbent_cls == 'player':
+            # Robot collides with player; player dies, game over.
+            raise GameOver('You died!')
+        elif incumbent_cls == 'robot':
+            self.kill(incumbent)
+            self.kill(new)
+            j = Junk(coords, self)
+            self._set_tile(coords, j)
+            self._objects.add(j)
+        elif incumbent_cls == 'junk':
+            self.kill(new)
     
     def collide(self, obj1, obj2, g_cls1=None, g_cls2=None):
         g_cls1 = g_cls1 or gameclass(obj1)
@@ -164,20 +173,7 @@ class GameGrid(BaseGrid):
         elif incumbent_class == 'player':
             # Robot collision with player; player dies, game over.
             raise GameOver('You died!')
-    
-    def robot_collisions(self):
-        # This function goes through to_collide and calls the collision code
-        # on a pair of robots where they still occupy the same tile after all
-        # robots have moved.
-        log(self.to_collide)
-        for e in self.to_collide:
-            other = self.to_collide[e]
-            if e.coords == other.coords:
-                log('collision between {} and {}'.format(e, other))
-                self.kill(e)
-                self.kill(other)
-            else:
-                log('no collision between {} and {}'.format(e, other))
+
 
     def kill(self, enemy):
         # Killed object is not removed from self._enemies until after

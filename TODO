@@ -1,7 +1,6 @@
 TODO ASAP:
 
-- When advancing to next level, grid does not seem to be cleared
-  of junk of old robots; find out why, and fix.
+- When advancing to next level, camera must zoom to player's new position.
 
 - More advanced info grid.
 

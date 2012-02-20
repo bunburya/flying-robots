@@ -81,25 +81,23 @@ class Robot(BaseMoveableObject):
 
     def __init__(self, coords, grid, speed=1):
         self._speed = speed
-        self.colliding_with = None
         BaseEnemy.__init__(self, coords, grid)
     
-    def _move_towards_player(self):
+    def _move_towards_player(self, times=1):
         to_move = []
         self_coords = self.coords
         player_coords = self._grid.player.coords
         for s, p in zip(self_coords, player_coords):
             if s < p:
-                to_move.append(1)
+                to_move.append(times)
             elif s > p:
-                to_move.append(-1)
+                to_move.append(-times)
             else:
                 to_move.append(0)
         self._move_by(*to_move)
     
     def move(self):
-        for _ in range(self._speed):
-            self._move_towards_player()
+        self._move_towards_player(self._speed)
 
 class TestRobot(Robot):
     """An enemy that doesn't move, for testing purposes."""
