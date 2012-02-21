@@ -23,7 +23,7 @@ class Game:
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
         #self._grid.populate(calc_enemies(start_level))
-        self._grid.populate_test(calc_enemies(start_level))
+        self._grid.populate(calc_enemies(start_level))
         self.elev = self._grid.player.coords[2]
         self.zoom_to_player_on_move = config['view'].getboolean('zoom_to_player_on_move')
         self.zoom_to_player_on_tele = config['view'].getboolean('zoom_to_player_on_teleport')
@@ -32,6 +32,7 @@ class Game:
     
     def teleport_player(self):
         self._grid.player.teleport()
+        self._grid.set_tile(self._grid.player)
         if self.zoom_to_player_on_tele:
             self.zoom_to_player()
     
@@ -49,7 +50,8 @@ class Game:
     def next_level(self):
         log('next level.')
         self.level += 1
-        self._grid.populate_test(calc_enemies(self.level))
+        self._grid.populate(calc_enemies(self.level))
+        self.zoom_to_player()
     
     def zoom_to_player(self):
         self.elev = self._grid.player.coords[2]

@@ -38,7 +38,10 @@ class BaseGrid:
 
     def _copy_empty_grid(self):
         """Returns a deepcopy of the instance's empty grid; this is more
-        efficient than generating a new one from scratch every time."""
+        efficient than generating a new one from scratch every time.
+        
+        At least, it's supposed to be, but doesn't seem to be, so consider
+        removing this."""
         #return [x[:] for x in [y[:] for y in [z[:] for z in self._EMPTY_GRID]]]
         return deepcopy(self._EMPTY_GRID)
     
@@ -49,9 +52,6 @@ class BaseGrid:
         self._set_tile(coords, None)
     
     def _set_tile(self, coords, new):
-        # If coords is not specified
-        if gameclass(new) == 'player':
-            log('painting {} to {}'.format(gameclass(new), coords))
         x, y, z = coords
         self._grid[z][y][x] = new
     
@@ -108,11 +108,9 @@ class GameGrid(BaseGrid):
             self._set_tile(coords, robot)
             enemies -= 1
         self._enemies = _enemies
-        log('new enemies set: {}'.format(_enemies))
         self._objects = deepcopy(_enemies)
         coords = self._get_random_empty_coords()
         self.player = Player(coords, self)
-        log('new player at {}'.format(self.player.coords))
         self._set_tile(coords, self.player)
         self._objects.add(self.player)
     
@@ -143,6 +141,10 @@ class GameGrid(BaseGrid):
     def set_tile(self, new):
         coords = new.coords
         incumbent = self._get_tile(coords)
+        if new == incumbent:
+            # Character has not moved.
+            # Happens when player tries to move out of bounds or stays still.
+            return
         incumbent_cls = gameclass(incumbent)
         new_cls = gameclass(new)
         # Player is prevented from moving onto occupied tile before this stage;
@@ -164,7 +166,6 @@ class GameGrid(BaseGrid):
     def collide(self, obj1, obj2, g_cls1=None, g_cls2=None):
         g_cls1 = g_cls1 or gameclass(obj1)
         g_cls2 = g_cls2 or gameclass(obj2)
-        log('collision between {} and {}.'.format(obj1, obj2))
         if new_class == 'player':
             raise BadTileError('Player cannot move onto tile at {},{},{}: Tile occupied.'.format(x, y, x))
         elif incumbent_class == 'junk':

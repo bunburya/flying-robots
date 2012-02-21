@@ -138,10 +138,10 @@ class GameInterface:
             self.update_grid()
     
     def view_next_elev(self):
-        self.view_elev(self.game.elev+1)
+        self.view_elev(self.game.elev-1)
     
     def view_prev_elev(self):
-        self.view_elev(self.game.elev-1)
+        self.view_elev(self.game.elev+1)
     
     def get_yn(self, prompt, default=True):
         prev = self.grid_win.instr(0, 0, len(prompt))

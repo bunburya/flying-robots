@@ -45,22 +45,28 @@ class BaseMoveableObject(BaseObject):
     """A base class representing anything that can move on a grid."""
 
     def _move_to(self, new_coords):
-        # Following code raises BadTileError is tile is OOB, halting move.
-        #self._grid._set_tile(new_coords, self)
-        
-        # _move_to should only change the coords as stored internally by
-        # the character. It should not call any methods from the grid.
-        
-        if self._grid.is_valid_tile(new_coords):
-            self._grid.clear_tile(self.coords)
-            self.coords = new_coords
+        self._grid.clear_tile(self.coords)
+        self.coords = new_coords
 
     def _move_by(self, dx, dy, dz, empty_only=False):
         """Arguments are changes in x, y, z coords respectively.
         If optional fourth empty_only arg is True, raises BadTileError if
         tile being moved to is occupied. This is used when the player moves."""
+        if dx == dy == dz == 0:
+            # Player is standing still for this turn. Don't do any more moving
+            # related stuff, just return without raising an error.
+            return
         old = self.coords
         new = [old[0] + dx, old[1] + dy, old[2] + dz]
+        # TODO: Get rid of BadTileError, and just return without doing anything
+        # instead.
+        # Possibly return a bool, okay_to_proceed, indicating whether the move
+        # was successful.
+        if not self._grid.is_valid_tile(new):
+            raise BadTileError('Tile out of bounds.')
+        # TODO: This currently raises BadTileError is the player is staying
+        # still, as the tile being "moved" to is occupied by itself.
+        # This means player can't stand still for a turn; fix this.
         if empty_only and (not self._grid._tile_is_empty(new)):
             raise BadTileError('Player cannot move onto occupied tile.')
         self._move_to(new)
