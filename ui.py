@@ -133,7 +133,7 @@ class GameInterface:
         self.game.zoom_to_player()
     
     def view_elev(self, elev):
-        if elev in range(self.grid_size[1]):
+        if elev in range(self.grid_size[2]):
             self.game.elev = elev
             self.update_grid()
     

@@ -1,15 +1,8 @@
 from chars import gameclass
 from grid import GameGrid
 from exceptions import BadTileError, LevelComplete, GameOver
-from config import get_config
+from config import get_config, calc_enemies
 from debug import log
-
-def calc_enemies(level):
-    # This is very primitive, for testing purposes.
-    # TODO: make this more sophisticated, and able to handle an
-    # arbitrary number of levels.
-    # An idea is to take whatever bsd-robots has ** (3/2).
-    return 40 * level
 
 class Game:
 

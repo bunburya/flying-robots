@@ -23,6 +23,7 @@ class BaseGrid:
         self._EMPTY_PLAN = self._get_empty_view(x, y)
         self._EMPTY_ELEV = self._get_empty_view(x, z)
         self._grid = self._copy_empty_grid()
+        log('Grid length: {}'.format(len(self._grid)))
         self.x = x
         self.y = y
         self.z = z

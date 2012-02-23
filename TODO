@@ -1,10 +1,12 @@
 TODO ASAP:
 
+- Waiting until death/level complete, and bonus points.
+
+- Moving as far as is safe.
+
 - More advanced info grid.
 
 - Proper game over screen, including prompt to play again.
-
-- More robots/more sensible calculation.
 
 - Jump to an arbitrary elevation.
 
