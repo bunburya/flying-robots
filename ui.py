@@ -73,7 +73,8 @@ class GameInterface:
             chr(curses.KEY_NPAGE):  self.view_next_elev,
             chr(curses.KEY_PPAGE):  self.view_prev_elev,
             't':                    self.teleport,
-            'p':                    self.zoom_to_player
+            'p':                    self.zoom_to_player,
+            'w':                    self.wait
             }
     
     def update_grid(self):
@@ -93,13 +94,20 @@ class GameInterface:
         self.info_win.addstr(7, 1, str(self.game.level))
         self.info_win.addstr(9, 1, 'Enemies:')
         self.info_win.addstr(10, 1, str(self.game.enemy_count))
+        self.info_win.addstr(12, 1, 'Score:')
+        self.info_win.addstr(13, 1, str(self.game.score))
         self.info_win.noutrefresh()
     
     def mainloop(self):
         while True:
             y, x = reversed(self.game.player_coords[:2])
             cmd_key = chr(self.stdscr.getch(0, 0))
-            self.handle_cmd(cmd_key)
+            try:
+                self.handle_cmd(cmd_key)
+            except GameOver:
+                self.on_game_over()
+            except LevelComplete:
+                self.on_level_complete()
             self.stdscr.refresh()
 
     def handle_cmd(self, cmd):
@@ -117,12 +125,7 @@ class GameInterface:
         else:
             z = 0
         x, y = self.xy_move_keys[unctrl(cmd).lower()]
-        try:
-            self.game.move_player(x, y, z)
-        except GameOver:
-            self.on_game_over()
-        except LevelComplete:
-            self.on_level_complete()
+        self.game.move_player(x, y, z)
         self.update_grid()
     
     def teleport(self):
@@ -131,6 +134,7 @@ class GameInterface:
     
     def zoom_to_player(self):
         self.game.zoom_to_player()
+        self.update_grid()
     
     def view_elev(self, elev):
         if elev in range(self.grid_size[2]):
@@ -142,6 +146,11 @@ class GameInterface:
     
     def view_prev_elev(self):
         self.view_elev(self.game.elev+1)
+    
+    def wait(self):
+        self.game.waiting = True
+        while True:
+            self.move('x')
     
     def get_yn(self, prompt, default=True):
         prev = self.grid_win.instr(0, 0, len(prompt))

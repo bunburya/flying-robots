@@ -10,12 +10,13 @@ class Game:
         config = config or get_config()
         self.level = start_level
         self.score = 0
+        self.waiting = False
+        self.wait_bonus = 0
         x = config['size'].getint('x')
         y = config['size'].getint('y')
         z = config['size'].getint('z')
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
-        #self._grid.populate(calc_enemies(start_level))
         self._grid.populate(calc_enemies(start_level))
         self.elev = self._grid.player.coords[2]
         self.zoom_to_player_on_move = config['view'].getboolean('zoom_to_player_on_move')
@@ -26,6 +27,7 @@ class Game:
     def teleport_player(self):
         self._grid.player.teleport()
         self._grid.set_tile(self._grid.player)
+        self._grid.move_enemies()
         if self.zoom_to_player_on_tele:
             self.zoom_to_player()
     
@@ -42,6 +44,9 @@ class Game:
     
     def next_level(self):
         log('next level.')
+        self.waiting = False
+        self.score += self.wait_bonus
+        self.wait_bonus = 0
         self.level += 1
         self._grid.populate(calc_enemies(self.level))
         self.zoom_to_player()

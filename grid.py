@@ -23,7 +23,6 @@ class BaseGrid:
         self._EMPTY_PLAN = self._get_empty_view(x, y)
         self._EMPTY_ELEV = self._get_empty_view(x, z)
         self._grid = self._copy_empty_grid()
-        log('Grid length: {}'.format(len(self._grid)))
         self.x = x
         self.y = y
         self.z = z
@@ -118,16 +117,18 @@ class GameGrid(BaseGrid):
     def populate_test(self, enemies):
         self._grid = self._copy_empty_grid()
         _enemies = set()
-        coords = self._get_random_empty_coords()
-        coords[2] = 4
-        robot = Robot(coords, self)
-        _enemies.add(robot)
-        self._set_tile(coords, robot)
-        coords = [c+1 for c in coords]
-        coords[2] = 4
-        robot = Robot(coords, self)
-        _enemies.add(robot)
-        self._set_tile(coords, robot)
+        r = Robot([2, 2, 2], self)
+        self._set_tile([2, 2, 2], r)
+        _enemies.add(r)
+        r = Robot([3, 2, 2], self)
+        self._set_tile([3, 2, 2], r)
+        _enemies.add(r)
+        r = Robot([4, 2, 2], self)
+        self._set_tile([4, 2, 2], r)
+        _enemies.add(r)
+        r = Robot([4, 3, 2], self)
+        self._set_tile([4, 3, 2], r)
+        _enemies.add(r)
         self._enemies = _enemies
         self._objects = deepcopy(_enemies)
         coords = self._get_random_empty_coords()
@@ -135,8 +136,8 @@ class GameGrid(BaseGrid):
             del self.player
         except AttributeError:
             pass
-        self.player = Player(coords, self)
-        self._set_tile(coords, self.player)
+        self.player = Player([7, 2, 2], self)
+        self._set_tile([7, 2, 2], self.player)
         self._objects.add(self.player)
     
     def set_tile(self, new):
@@ -183,6 +184,8 @@ class GameGrid(BaseGrid):
         # during iteration.
         enemy.is_alive = False
         self._game.score += enemy.KILLSCORE
+        if self._game.waiting:
+            self._game.wait_bonus += enemy.KILLSCORE//10
         coords = enemy.coords
         self._objects.discard(enemy)            
 
