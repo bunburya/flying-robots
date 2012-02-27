@@ -1,4 +1,4 @@
-from os import mkdir
+from os import mkdir, getenv
 from os.path import isdir, isfile, join, expanduser
 from configparser import ConfigParser, ParsingError
 
@@ -24,9 +24,10 @@ def _get_conf_from_file(conf, f=CONF_FILE):
         print('Error details:', ' '.join(e.args))
         quit(1)
 
-def _get_default_conf(conf, write_to=CONF_FILE):
+def _get_default_conf(conf, write_to=None):
     x, y, z = 59, 22, 36    # 36-length z-axis gives a total area that is
                             # approximately (area of 2d grid) ** 1.5.
+    conf['player'] = {'name': getenv('USER', 'j_doe')}
     conf['size'] = {'x': x, 'y': y, 'z': z}
     conf['view'] = {
         'zoom_to_player_on_move': 'yes',

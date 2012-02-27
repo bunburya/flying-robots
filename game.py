@@ -7,6 +7,7 @@ from debug import log
 class Game:
 
     def __init__(self, config=None, start_level=1):
+        # Maybe remove this line, make config a required arg
         config = config or get_config()
         self.level = start_level
         self.score = 0
@@ -15,6 +16,7 @@ class Game:
         x = config['size'].getint('x')
         y = config['size'].getint('y')
         z = config['size'].getint('z')
+        self.name = config['player'].get('name')
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
         self._grid.populate(calc_enemies(start_level))

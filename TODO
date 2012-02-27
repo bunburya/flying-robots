@@ -1,17 +1,21 @@
 TODO ASAP:
 
-- Waiting until death/level complete, and bonus points.
-
 - Moving as far as is safe.
-
-- More advanced info grid.
 
 - Proper game over screen, including prompt to play again.
 
 - Jump to an arbitrary elevation.
 
-- Fast robots.
-
 - Merge Grid classes into one.
 
-- High scores.
+- Clean up code.
+
+- Better high scores.
+
+- Revamp config system; game should use hardcoded values unless --config option
+  is supplied. Only standard games (ones without custom configs) should count
+  towards high scores.
+
+- Option parsing.
+
+- Documentation.

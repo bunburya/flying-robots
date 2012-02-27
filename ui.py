@@ -5,6 +5,7 @@ import curses
 from game import Game
 from exceptions import LevelComplete, GameOver
 from chars import gameclass
+from hs_handler import HighScoreHandler
 
 from debug import log
 
@@ -43,13 +44,16 @@ class GameInterface:
         'n':    False
         }
     
-    def __init__(self):
+    def __init__(self, config, hiscore_game=True):
+        self.hiscore_game = hiscore_game
+        if hiscore_game:
+            self.hs_handler = HighScoreHandler()
         self.stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
         self.stdscr.keypad(1)
         self.stdscr.clear()
-        self.game = Game()
+        self.game = Game(config)
         self.grid_size = self.game.grid_size
         self.setup_nonmove_cmds()
         self.setup_windows()
@@ -87,7 +91,7 @@ class GameInterface:
     def update_info(self):
         self.info_win.erase()
         self.info_win.addstr(1, 1, 'Player coords:')
-        self.info_win.addstr(2, 1, '({}, {}, {})'.format(*self.game.player_coords))
+        self.info_win.addstr(2, 1, str(self.game.player_coords))
         self.info_win.addstr(4, 1, 'Viewing elev:')
         self.info_win.addstr(5, 1, str(self.game.elev))
         self.info_win.addstr(6, 1, 'Level:')
@@ -164,11 +168,20 @@ class GameInterface:
         self.update_info()
 
     def on_game_over(self):
+        if self.hiscore_game:
+            self.hs_handler.add_score(self.game.name, self.game.score)
+            self.hs_handler.write()
         self.quit('You died!')
     
     def prompt_quit(self):
         if self.get_yn('Really quit? (y/N)', False):
             self.quit()
+    
+    def print_hiscores(self):
+        print('High scores:')
+        for r, s in enumerate(self.hs_handler.scores):
+            name, score = s
+            print('\t'.join(map(str, (r+1, name, score))))
 
     def quit(self, msg=None, status=0):
         self.stdscr.keypad(0)
@@ -177,4 +190,5 @@ class GameInterface:
         curses.endwin()
         if msg is not None:
             print(msg)
+        self.print_hiscores()
         quit(status)

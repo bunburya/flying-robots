@@ -2,4 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import ui
-ui.GameInterface()
+from config import get_config
+
+conf = get_config()
+
+ui.GameInterface(conf)
