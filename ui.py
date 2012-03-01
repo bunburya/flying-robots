@@ -5,7 +5,7 @@ import curses
 from game import Game
 from exceptions import LevelComplete, GameOver
 from chars import gameclass
-from hs_handler import HighScoreHandler
+from hs_handler import get_scores, add_score
 
 from debug import log
 
@@ -46,8 +46,6 @@ class GameInterface:
     
     def __init__(self, config, hiscore_game=True):
         self.hiscore_game = hiscore_game
-        if hiscore_game:
-            self.hs_handler = HighScoreHandler()
         self.stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
@@ -169,26 +167,38 @@ class GameInterface:
 
     def on_game_over(self):
         if self.hiscore_game:
-            self.hs_handler.add_score(self.game.name, self.game.score)
-            self.hs_handler.write()
-        self.quit('You died!')
+            self.handle_hiscores()
+        self.quit()
     
     def prompt_quit(self):
         if self.get_yn('Really quit? (y/N)', False):
             self.quit()
     
-    def print_hiscores(self):
-        print('High scores:')
-        for r, s in enumerate(self.hs_handler.scores):
-            name, score = s
-            print('\t'.join(map(str, (r+1, name, score))))
+    def handle_hiscores(self):
+        log('adding')
+        log(repr(self.game.name))   # name is still normal here
+        scores, posn = add_score(self.game.name, self.game.score)
+        self.print_hiscores(scores, posn)
+    
+    def print_hiscores(self, scores, posn):
+        self.grid_win.clear()
+        self.grid_win.addstr(1, 1, 'Pos\tName\tScore')
+        for _posn, (name, score) in enumerate(scores):
+            line = _posn+2
+            _posn += 1   # Because position in score list starts from 1, not 0.
+            if _posn == posn:
+                attr = curses.A_STANDOUT
+            else:
+                attr = curses.A_NORMAL
+ #           log(repr(name)) # it appears that name receives loads of leading null bytes
+ #           log(repr('{}\t{}\t{}'.format(_posn, name, score)))  #wtf, tons of null bytes
+            self.grid_win.addstr(line, 1, '{}\t{}\t{}'.format(_posn, name, score), attr)
+        self.grid_win.refresh()
+        self.stdscr.getch(0, 0) # Wait until player hits a key before quitting.
 
-    def quit(self, msg=None, status=0):
+    def quit(self, status=0):
         self.stdscr.keypad(0)
         curses.nocbreak()
         curses.echo()
         curses.endwin()
-        if msg is not None:
-            print(msg)
-        self.print_hiscores()
         quit(status)

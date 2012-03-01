@@ -1,3 +1,27 @@
 FlyingRobots is a three-dimensional clone of the classic bsd-robots game.
 
 It is currently a work in progress.
+
+---
+
+CONTROLS
+
+Basic movement buttons are:
+
+y k u
+ \|/
+h-x-l
+ /|\
+b j n
+
+Holding shift while pressing any of the above also moves up the z-axis.
+Holding ctrl while pressing any of the above also moves down the z-axis.
+
+t = Teleport to random location.
+w = Stay where you are and pass turns until you complete the level or die.
+    You get a 10% bonus to score for each robot who dies in this period,
+    but it only counts if you complete the level.
+q = Quit.
+
+Pg-up = View next level on z-axis, without moving.
+Pg-dn = View previous level on z-axis, without moving.

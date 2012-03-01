@@ -17,6 +17,7 @@ class Game:
         y = config['size'].getint('y')
         z = config['size'].getint('z')
         self.name = config['player'].get('name')
+        log(repr(self.name))
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
         self._grid.populate(calc_enemies(start_level))
