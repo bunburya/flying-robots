@@ -2,10 +2,6 @@ TODO ASAP:
 
 - Moving as far as is safe.
 
-- If you die while waiting, you currently get all the points associated with
-  killing the robots who died during the waiting period, but don't get the bonus
-  points. You shouldn't get any points for kills during that period if you die.
-
 - Proper game over screen, including prompt to play again.
 
 - Jump to an arbitrary elevation.
@@ -14,12 +10,6 @@ TODO ASAP:
 
 - Clean up code.
 
-- Better high scores.
-  - Limit how many high scores are saved (10 or 20).
-  - Better algo for inserting score in correct position; function should also
-    return player's position.
-  - High scores must be loaded fresh every time we want to add one.
-
 - Revamp config system; game should use hardcoded values unless --config option
   is supplied. Only standard games (ones without custom configs) should count
   towards high scores.
@@ -27,3 +17,5 @@ TODO ASAP:
 - Option parsing.
 
 - Documentation.
+
+- Proper logging.

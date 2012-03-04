@@ -175,12 +175,11 @@ class GameInterface:
             self.quit()
     
     def handle_hiscores(self):
-        log('adding')
-        log(repr(self.game.name))   # name is still normal here
         scores, posn = add_score(self.game.name, self.game.score)
         self.print_hiscores(scores, posn)
     
     def print_hiscores(self, scores, posn):
+        log('print_hiscores called with posn {}'.format(posn))
         self.grid_win.clear()
         self.grid_win.addstr(1, 1, 'Pos\tName\tScore')
         for _posn, (name, score) in enumerate(scores):
@@ -190,8 +189,6 @@ class GameInterface:
                 attr = curses.A_STANDOUT
             else:
                 attr = curses.A_NORMAL
- #           log(repr(name)) # it appears that name receives loads of leading null bytes
- #           log(repr('{}\t{}\t{}'.format(_posn, name, score)))  #wtf, tons of null bytes
             self.grid_win.addstr(line, 1, '{}\t{}\t{}'.format(_posn, name, score), attr)
         self.grid_win.refresh()
         self.stdscr.getch(0, 0) # Wait until player hits a key before quitting.

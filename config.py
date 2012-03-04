@@ -7,18 +7,20 @@ from debug import log
 CONF_DIR = expanduser('~/.flying_robots')
 if not isdir(CONF_DIR):
     mkdir(CONF_DIR)
-CONF_FILE = join(CONF_DIR, 'config')
-
-conf = ConfigParser()
+    
+def get_conf_filepath(filename):
+    """Takes a filename as an argument, returns the full path to that file,
+    which is the filename joined with the config directory."""
+    return join(CONF_DIR, filename)
 
 def calc_enemies(level):
     # bsd-robots has 10*lvl enemies on each level.
     # We're just going to take that ** 1.5, for now at least.
     return int((10 * level) ** 1.5)
 
-def _get_conf_from_file(conf, f=CONF_FILE):
+def _get_conf_from_file(conf, f):
     try:
-        conf.read(CONF_FILE)
+        conf.read(f)
     except ParsingError as e:
         print('Error parsing config file.')
         print('Error details:', ' '.join(e.args))
@@ -37,9 +39,9 @@ def _get_default_conf(conf, write_to=None):
         with open(write_to, 'w') as f:
             conf.write(f)
 
-def get_config():
+def get_config(conf_file=None):
     conf = ConfigParser()
-    if isfile(CONF_FILE):
+    if conf_file and isfile(conf_file):
         _get_conf_from_file(conf)
     else:
         _get_default_conf(conf)

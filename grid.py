@@ -183,9 +183,10 @@ class GameGrid(BaseGrid):
         # all enemies have moved, as the size of the set cannot be changed
         # during iteration.
         enemy.is_alive = False
-        self._game.score += enemy.KILLSCORE
         if self._game.waiting:
-            self._game.wait_bonus += enemy.KILLSCORE//10
+            self._game.wait_bonus += int(enemy.KILLSCORE * 1.1)
+        else:
+            self._game.score += enemy.KILLSCORE
         coords = enemy.coords
         self._objects.discard(enemy)            
 
