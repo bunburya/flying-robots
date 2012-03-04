@@ -30,6 +30,7 @@ def _get_default_conf(conf, write_to=None):
     x, y, z = 59, 22, 36    # 36-length z-axis gives a total area that is
                             # approximately (area of 2d grid) ** 1.5.
     conf['player'] = {'name': getenv('USER', 'j_doe')}
+    conf['game'] = {'start_level': '1'}
     conf['size'] = {'x': x, 'y': y, 'z': z}
     conf['view'] = {
         'zoom_to_player_on_move': 'yes',
@@ -38,6 +39,10 @@ def _get_default_conf(conf, write_to=None):
     if write_to is not None:
         with open(write_to, 'w') as f:
             conf.write(f)
+
+def write_default_conf():
+    conf_file = get_conf_filepath('default.conf')
+    _get_default_conf(ConfigParser(), conf_file)
 
 def get_config(conf_file=None):
     conf = ConfigParser()

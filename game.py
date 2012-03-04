@@ -9,7 +9,7 @@ class Game:
     def __init__(self, config=None, start_level=1):
         # Maybe remove this line, make config a required arg
         config = config or get_config()
-        self.level = start_level
+        self.level = config['game'].getint('start_level')
         self.score = 0
         self.waiting = False
         self.wait_bonus = 0
