@@ -44,8 +44,8 @@ class GameInterface:
         'n':    False
         }
     
-    def __init__(self, config, hiscore_game=True):
-        self.hiscore_game = hiscore_game
+    def __init__(self, config):
+        self.hiscore_game = config['game'].getboolean('hiscore')
         self.stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()

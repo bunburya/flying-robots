@@ -33,7 +33,6 @@ def _insert_score(name, score, scores):
     scores.insert(0, (name, score))
     return 1
 
-
 def _to_file(scores, fileobj):
     fileobj.writelines('{},{}\n'.format(*i) for i in scores)
 
@@ -45,9 +44,7 @@ def add_score(name, score):
     """Takes name and score as arguments.
     Reads scorelist from file, updates it with given name and score, and
     returns tuple containing updated scorelist and player's position in it."""
-
-    with open(HS_FILE, 'r') as f:
-        scores = _from_file(f)
+    scores = get_scores()
     if not score:
         return scores, None
     posn = _insert_score(name, score, scores)

@@ -44,10 +44,20 @@ def write_default_conf():
     conf_file = get_conf_filepath('default.conf')
     _get_default_conf(ConfigParser(), conf_file)
 
-def get_config(conf_file=None):
+def get_config(options):
+    # See OptionParser options in main.py for the options we consider here.
+    # TODO: This is messy and not easily extensible. Maybe find a better way.
     conf = ConfigParser()
-    if conf_file and isfile(conf_file):
+    if options.conf_file and isfile(options.conf_file):
         _get_conf_from_file(conf)
+        hiscore = 'no'
     else:
         _get_default_conf(conf)
+        hiscore = 'yes'
+    if options.start_level is not None:
+        conf['game']['start_level'] = options.start_level
+        hiscore = 'no'
+    if options.name is not None:
+        conf['player']['name'] = options.name
+    conf['game']['hiscore'] = hiscore
     return conf
