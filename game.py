@@ -55,6 +55,9 @@ class Game:
     def zoom_to_player(self):
         self.elev = self._grid.player.coords[2]
     
+    def zoom_to_elev(self, elev):
+        self.elev = elev
+    
     
     # The following are functions called by the UI in order to display the
     # game to the player.

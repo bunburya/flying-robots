@@ -4,8 +4,6 @@ TODO ASAP:
 
 - Proper game over screen, including prompt to play again.
 
-- Jump to an arbitrary elevation.
-
 - Merge Grid classes into one.
 
 - Clean up code.
@@ -17,3 +15,5 @@ TODO ASAP:
 - Documentation.
 
 - Proper logging.
+
+- Allow view to stay on non-player elev, evem when moving.

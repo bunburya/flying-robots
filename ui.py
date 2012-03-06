@@ -76,7 +76,8 @@ class GameInterface:
             chr(curses.KEY_PPAGE):  self.view_prev_elev,
             't':                    self.teleport,
             'p':                    self.zoom_to_player,
-            'w':                    self.wait
+            'w':                    self.wait,
+            'g':                    self.prompt_goto_elev
             }
     
     def update_grid(self):
@@ -155,10 +156,23 @@ class GameInterface:
             self.move('x')
     
     def get_yn(self, prompt, default=True):
-        prev = self.grid_win.instr(0, 0, len(prompt))
         self.grid_win.addstr(0, 0, prompt)
-        ch = chr(self.grid_win.getch(1, 0)).lower()
+        ch = chr(self.grid_win.getch(0, 0)).lower()
+        self.grid_win.border()
+        self.grid_win.refresh()
         return self.yn_vals.get(ch, default)
+    
+    def get_num(self, prompt, default=None):
+        self.grid_win.addstr(0, 0, prompt)
+        try:
+            curses.echo()
+            val = int(self.grid_win.getstr(0, len(prompt)))
+            curses.noecho()
+        except ValueError:
+            val = default
+        self.grid_win.border()
+        self.grid_win.refresh()
+        return val
     
     def on_level_complete(self):
         self.game.next_level()
@@ -173,6 +187,12 @@ class GameInterface:
     def prompt_quit(self):
         if self.get_yn('Really quit? (y/N)', False):
             self.quit()
+    
+    def prompt_goto_elev(self):
+        elev = self.get_num('Goto:')
+        if 0 < elev <= self.grid_size[2]:
+            self.game.zoom_to_elev(elev)
+        self.update_grid()
     
     def handle_hiscores(self):
         scores, posn = add_score(self.game.name, self.game.score)
