@@ -21,6 +21,7 @@ def calc_enemies(level):
 def _get_conf_from_file(conf, f):
     try:
         conf.read(f)
+        conf['game']['hiscore'] = 'no'
     except ParsingError as e:
         print('Error parsing config file.')
         print('Error details:', ' '.join(e.args))
@@ -30,8 +31,8 @@ def _get_default_conf(conf, write_to=None):
     x, y, z = 59, 22, 36    # 36-length z-axis gives a total area that is
                             # approximately (area of 2d grid) ** 1.5.
     conf['player'] = {'name': getenv('USER', 'j_doe')}
-    conf['game'] = {'start_level': '1'}
-    conf['size'] = {'x': x, 'y': y, 'z': z}
+    conf['game'] = {'start_level': '1', 'hiscore': 'yes'}
+    conf['grid'] = {'x': x, 'y': y, 'z': z}
     conf['view'] = {
         'zoom_to_player_on_move': 'yes',
         'zoom_to_player_on_teleport': 'yes'
@@ -40,24 +41,26 @@ def _get_default_conf(conf, write_to=None):
         with open(write_to, 'w') as f:
             conf.write(f)
 
+def apply_opts_to_conf(conf, opts, optmap):
+    for o in optmap:
+        sect, name, no_hiscore = optmap[o]
+        val = getattr(opts, o)
+        if val is None:
+            continue
+        conf[sect][name] = val
+        if no_hiscore:
+            conf['game']['hiscore'] = 'no'
+
 def write_default_conf():
     conf_file = get_conf_filepath('default.conf')
     _get_default_conf(ConfigParser(), conf_file)
 
-def get_config(options):
+def get_config(conf_file=None):
     # See OptionParser options in main.py for the options we consider here.
     # TODO: This is messy and not easily extensible. Maybe find a better way.
     conf = ConfigParser()
-    if options.conf_file and isfile(options.conf_file):
+    if conf_file and isfile(conf_file):
         _get_conf_from_file(conf)
-        hiscore = 'no'
     else:
         _get_default_conf(conf)
-        hiscore = 'yes'
-    if options.start_level is not None:
-        conf['game']['start_level'] = options.start_level
-        hiscore = 'no'
-    if options.name is not None:
-        conf['player']['name'] = options.name
-    conf['game']['hiscore'] = hiscore
     return conf

@@ -14,8 +14,6 @@ TODO ASAP:
   is supplied. Only standard games (ones without custom configs) should count
   towards high scores.
 
-- Option parsing.
-
 - Documentation.
 
 - Proper logging.

@@ -12,9 +12,9 @@ class Game:
         self.score = 0
         self.waiting = False
         self.wait_bonus = 0
-        x = config['size'].getint('x')
-        y = config['size'].getint('y')
-        z = config['size'].getint('z')
+        x = config['grid'].getint('x')
+        y = config['grid'].getint('y')
+        z = config['grid'].getint('z')
         self.name = config['player'].get('name')
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
