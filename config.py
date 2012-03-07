@@ -66,9 +66,11 @@ def apply_opts_to_conf(conf, opts, optmap):
         val = getattr(opts, o)
         if val is None:
             continue
-        conf[sect][name] = val
+        #conf[sect][name] = val
+        conf.set(sect, name, val)
         if no_hiscore:
-            conf['game']['hiscore'] = 'no'
+            #conf['game']['hiscore'] = 'no'
+            conf.set('game', 'hiscore', 'no')
 
 def write_default_conf():
     conf_file = get_conf_filepath('default.conf')
