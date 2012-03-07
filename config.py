@@ -3,8 +3,17 @@ from os import mkdir, getenv
 from os.path import isdir, isfile, join, expanduser
 from configparser import ConfigParser, ParsingError
 
+# NOTE: We currently use the get and set methods of ConfigParser throughout
+# FlyingRobots, to ensure compatibility with pre-3.2 versions.
+# When we want to drop 3.1 support, we will stop using those methods and start
+# using "config[section][option]" notation.
+
 if version_info.minor >= 3.2:
-    ConfigParser.set = lambda self, section, option, value: self[section][option] = value
+    # ConfigParser doesn't support dict-like assignment prior to 3.2;
+    # it has a set method instead.
+    def _conf_set(self, section, option, value):
+        self[section][option] = value
+    ConfigParser.set = _conf_set
 
 from debug import log
 
@@ -25,7 +34,7 @@ def calc_enemies(level):
 def _get_conf_from_file(conf, f):
     try:
         conf.read(f)
-        conf['game']['hiscore'] = 'no'
+        conf.set('game', 'hiscore', 'no')
     except ParsingError as e:
         print('Error parsing config file.')
         print('Error details:', ' '.join(e.args))
@@ -34,13 +43,19 @@ def _get_conf_from_file(conf, f):
 def _get_default_conf(conf, write_to=None):
     x, y, z = 59, 22, 36    # 36-length z-axis gives a total area that is
                             # approximately (area of 2d grid) ** 1.5.
-    conf['player'] = {'name': getenv('USER', 'j_doe')}
-    conf['game'] = {'start_level': '1', 'hiscore': 'yes'}
-    conf['grid'] = {'x': x, 'y': y, 'z': z}
-    conf['view'] = {
-        'zoom_to_player_on_move': 'yes',
-        'zoom_to_player_on_teleport': 'yes'
-        }
+    #conf['player']['name'] = getenv('USER', 'j_doe')
+    conf.add_section('player')
+    conf.set('player', 'name', getenv('USER', 'j_doe'))
+    #conf['game'] = {'start_level': '1', 'hiscore': 'yes'}
+    conf.add_section('game')
+    conf.set('game', 'start_level', '1')
+    conf.set('game', 'hiscore', 'yes')
+    #conf['grid'] = {'x': x, 'y': y, 'z': z}
+    conf.add_section('grid')
+    conf.set('grid', 'x', str(x))
+    conf.set('grid', 'y', str(y))
+    conf.set('grid', 'z', str(z))
+
     if write_to is not None:
         with open(write_to, 'w') as f:
             conf.write(f)

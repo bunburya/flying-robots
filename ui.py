@@ -46,7 +46,8 @@ class GameInterface:
     
     def __init__(self, stdscr, config):
         self.stdscr = stdscr
-        self.hiscore_game = config['game'].getboolean('hiscore')
+        #self.hiscore_game = config['game'].getboolean('hiscore')
+        self.hiscore_game = config.getboolean('game', 'hiscore')
         curses.noecho()
         curses.cbreak()
         self.stdscr.keypad(1)

@@ -8,20 +8,23 @@ class Game:
 
     def __init__(self, config):
         # Maybe remove this line, make config a required arg
-        self.level = config['game'].getint('start_level')
+        #self.level = config['game'].getint('start_level')
+        self.level = config.getint('game', 'start_level')
         self.score = 0
         self.waiting = False
         self.wait_bonus = 0
-        x = config['grid'].getint('x')
-        y = config['grid'].getint('y')
-        z = config['grid'].getint('z')
-        self.name = config['player'].get('name')
+        #x = config['grid'].getint('x')
+        x = config.getint('grid', 'x')
+        #y = config['grid'].getint('y')
+        y = config.getint('grid', 'y')
+        #z = config['grid'].getint('z')
+        z = config.getint('grid', 'z')
+        #self.name = config['player'].get('name')
+        self.name = config.get('player', 'name')
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
         self._grid.populate(calc_enemies(self.level))
         self.elev = self._grid.player.coords[2]
-        self.zoom_to_player_on_move = config['view'].getboolean('zoom_to_player_on_move')
-        self.zoom_to_player_on_tele = config['view'].getboolean('zoom_to_player_on_teleport')
     
     # The following are functions called by the UI to change game state
     
@@ -29,8 +32,7 @@ class Game:
         self._grid.player.teleport()
         self._grid.set_tile(self._grid.player)
         self._grid.move_enemies()
-        if self.zoom_to_player_on_tele:
-            self.zoom_to_player()
+        self.zoom_to_player()
     
     def move_player(self, dx, dy, dz):
         try:
@@ -39,8 +41,7 @@ class Game:
             return False
         self._grid.set_tile(self._grid.player)
         self._grid.move_enemies()
-        if self.zoom_to_player_on_move:
-            self.zoom_to_player()
+        self.zoom_to_player()
         return True
     
     def next_level(self):
