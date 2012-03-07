@@ -1,6 +1,10 @@
+from sys import version_info
 from os import mkdir, getenv
 from os.path import isdir, isfile, join, expanduser
 from configparser import ConfigParser, ParsingError
+
+if version_info.minor >= 3.2:
+    ConfigParser.set = lambda self, section, option, value: self[section][option] = value
 
 from debug import log
 
