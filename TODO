@@ -16,4 +16,7 @@ TODO ASAP:
 
 - Proper logging.
 
-- Allow view to stay on non-player elev, evem when moving.
+- Allow view to stay on non-player elev, even when moving.
+  - "s" button to activate "sticky" mode.
+
+- Improve option handling to fix Py 3.1 or 3.2.
