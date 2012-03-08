@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from sys import version_info
 if version_info.minor < 2:
-    from _optparse import ArgumentParser
+    from compat import ArgumentParser
 else:
     from argparse import ArgumentParser
 from curses import wrapper

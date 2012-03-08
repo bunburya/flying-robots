@@ -1,19 +1,10 @@
 from sys import version_info
 from os import mkdir, getenv
 from os.path import isdir, isfile, join, expanduser
-from configparser import ConfigParser, ParsingError
-
-# NOTE: We currently use the get and set methods of ConfigParser throughout
-# FlyingRobots, to ensure compatibility with pre-3.2 versions.
-# When we want to drop 3.1 support, we will stop using those methods and start
-# using "config[section][option]" notation.
-
-if version_info.minor >= 3.2:
-    # ConfigParser doesn't support dict-like assignment prior to 3.2;
-    # it has a set method instead.
-    def _conf_set(self, section, option, value):
-        self[section][option] = value
-    ConfigParser.set = _conf_set
+if version_info.minor >= 2:
+    from configparser import ConfigParser, ParsingError
+else:
+    from compat import ConfigParser, ParsingError
 
 from debug import log
 
@@ -43,18 +34,9 @@ def _get_conf_from_file(conf, f):
 def _get_default_conf(conf, write_to=None):
     x, y, z = 59, 22, 36    # 36-length z-axis gives a total area that is
                             # approximately (area of 2d grid) ** 1.5.
-    #conf['player']['name'] = getenv('USER', 'j_doe')
-    conf.add_section('player')
-    conf.set('player', 'name', getenv('USER', 'j_doe'))
-    #conf['game'] = {'start_level': '1', 'hiscore': 'yes'}
-    conf.add_section('game')
-    conf.set('game', 'start_level', '1')
-    conf.set('game', 'hiscore', 'yes')
-    #conf['grid'] = {'x': x, 'y': y, 'z': z}
-    conf.add_section('grid')
-    conf.set('grid', 'x', str(x))
-    conf.set('grid', 'y', str(y))
-    conf.set('grid', 'z', str(z))
+    conf['player'] = {'name': getenv('USER', 'j_doe')}
+    conf['game'] = {'start_level': '1', 'hiscore': 'yes'}
+    conf['grid'] = {'x': x, 'y': y, 'z': z}
 
     if write_to is not None:
         with open(write_to, 'w') as f:
@@ -66,11 +48,10 @@ def apply_opts_to_conf(conf, opts, optmap):
         val = getattr(opts, o)
         if val is None:
             continue
-        #conf[sect][name] = val
-        conf.set(sect, name, val)
+        conf[sect][name] = val
+        #conf.set(sect, name, val)
         if no_hiscore:
-            #conf['game']['hiscore'] = 'no'
-            conf.set('game', 'hiscore', 'no')
+            conf['game']['hiscore'] = 'no'
 
 def write_default_conf():
     conf_file = get_conf_filepath('default.conf')

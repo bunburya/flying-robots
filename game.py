@@ -7,20 +7,14 @@ from debug import log
 class Game:
 
     def __init__(self, config):
-        # Maybe remove this line, make config a required arg
-        #self.level = config['game'].getint('start_level')
-        self.level = config.getint('game', 'start_level')
+        self.level = config['game'].getint('start_level')
         self.score = 0
         self.waiting = False
         self.wait_bonus = 0
-        #x = config['grid'].getint('x')
-        x = config.getint('grid', 'x')
-        #y = config['grid'].getint('y')
-        y = config.getint('grid', 'y')
-        #z = config['grid'].getint('z')
-        z = config.getint('grid', 'z')
-        #self.name = config['player'].get('name')
-        self.name = config.get('player', 'name')
+        x = config['grid'].getint('x')
+        y = config['grid'].getint('y')
+        z = config['grid'].getint('z')
+        self.name = config['player'].get('name')
         self.grid_size = [x, y, z]
         self._grid = GameGrid(x, y, z, self)
         self._grid.populate(calc_enemies(self.level))
