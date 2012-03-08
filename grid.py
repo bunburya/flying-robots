@@ -6,19 +6,22 @@ from exceptions import BadTileError, LevelComplete, GameOver
 
 from debug import log
 
-class BaseGrid:
+class GameGrid:
     
-    """A base 3D grid.
+    """The game grid.
     
     The z-axis represents the vertical depth of the grid. The x and y
     axes refer to the columns and rows, respectively, of each z-level
     when viewed from above.
     
-    The origin (0, 0, 0) should be at the bottom-left corner of the
-    plan and the top-left corner of the elevation."""
+    The origin (0, 0, 0) should be at the bottom-left corner of the plan, and
+    the "furthest" away from the viewer.
+    
+    The grid handles character placement, movement and collisions."""
 
     
-    def __init__(self, x, y, z):
+    def __init__(self, x, y, z, game):
+        self._game = game
         self._EMPTY_GRID = self._get_empty_grid(x, y, z)
         self._EMPTY_PLAN = self._get_empty_view(x, y)
         self._EMPTY_ELEV = self._get_empty_view(x, z)
@@ -85,18 +88,6 @@ class BaseGrid:
     def is_valid_tile(self, coords):
         x, y, z = coords
         return (min(coords) >= 0) and (x <= self.x) and (y <= self.y) and (z <= self.z)
-
-
-class GameGrid(BaseGrid):
-    
-    """A 3D grid, inheriting from BaseGrid, which has attributes and
-    methods required for our game.
-    
-    This class handles character placement, movement and collision."""
-    
-    def __init__(self, x, y, z, game):
-        self._game = game
-        BaseGrid.__init__(self, x, y, z)
     
     def populate(self, enemies):
         self._grid = self._copy_empty_grid()

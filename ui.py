@@ -65,9 +65,12 @@ class GameInterface:
         x, y, _ = self.grid_size
         self.grid_win = self.stdscr.subwin(y+2, x+2, 0, 0)
         self.grid_win.border()
-        # Also add in info grid.
-        self.info_win = self.stdscr.subwin(y+2, 20, 0, x+3)
-        self.info_win.border()
+        self.info_win = self.stdscr.subwin(y+2, 18, 0, x+3)
+        # Now get the positions where we'll indicate whether sticky mode,
+        # move-as-far-as-possible mode etc, has been set.
+        info_max_y, info_max_x = self.info_win.getmaxyx()
+        self.sticky_yx = [info_max_y-2, 0]
+        self.mafap_yx = [info_max_y-2, 1]
     
     def setup_nonmove_cmds(self):
         """Here we bind keys to their functions."""
@@ -78,7 +81,8 @@ class GameInterface:
             't':                    self.teleport,
             'p':                    self.zoom_to_player,
             'w':                    self.wait,
-            'g':                    self.prompt_goto_elev
+            'g':                    self.prompt_goto_elev,
+            's':                    self.toggle_sticky_view
             }
     
     def update_grid(self):
@@ -89,17 +93,22 @@ class GameInterface:
         self.grid_win.noutrefresh()
     
     def update_info(self):
+        # Maybe make this less verbose
+        x = 0
         self.info_win.erase()
-        self.info_win.addstr(1, 1, 'Player coords:')
-        self.info_win.addstr(2, 1, str(self.game.player_coords))
-        self.info_win.addstr(4, 1, 'Viewing elev:')
-        self.info_win.addstr(5, 1, str(self.game.elev))
-        self.info_win.addstr(6, 1, 'Level:')
-        self.info_win.addstr(7, 1, str(self.game.level))
-        self.info_win.addstr(9, 1, 'Enemies:')
-        self.info_win.addstr(10, 1, str(self.game.enemy_count))
-        self.info_win.addstr(12, 1, 'Score:')
-        self.info_win.addstr(13, 1, str(self.game.score))
+        self.info_win.addstr(1, x, 'Player coords:')
+        self.info_win.addstr(2, x, str(self.game.player_coords))
+        self.info_win.addstr(4, x, 'Viewing elev:')
+        self.info_win.addstr(5, x, str(self.game.elev))
+        self.info_win.addstr(6, x, 'Level:')
+        self.info_win.addstr(7, x, str(self.game.level))
+        self.info_win.addstr(9, x, 'Enemies:')
+        self.info_win.addstr(10, x, str(self.game.enemy_count))
+        self.info_win.addstr(12, x, 'Score:')
+        self.info_win.addstr(13, x, str(self.game.score))
+        sticky = 's' if self.game.sticky_view else ' '
+        y, x = self.sticky_yx
+        self.info_win.addstr(y, x, sticky)
         self.info_win.noutrefresh()
     
     def mainloop(self):
@@ -194,6 +203,10 @@ class GameInterface:
         if 0 < elev <= self.grid_size[2]:
             self.game.zoom_to_elev(elev)
         self.update_grid()
+    
+    def toggle_sticky_view(self):
+        self.game.toggle_sticky_view()
+        self.update_info()
     
     def handle_hiscores(self):
         scores, posn = add_score(self.game.name, self.game.score)

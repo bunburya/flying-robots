@@ -4,19 +4,6 @@ TODO ASAP:
 
 - Proper game over screen, including prompt to play again.
 
-- Merge Grid classes into one.
-
 - Clean up code.
 
-- Revamp config system; game should use hardcoded values unless --config option
-  is supplied. Only standard games (ones without custom configs) should count
-  towards high scores.
-
-- Documentation.
-
 - Proper logging.
-
-- Allow view to stay on non-player elev, even when moving.
-  - "s" button to activate "sticky" mode.
-
-- Improve option handling to fix Py 3.1 or 3.2.

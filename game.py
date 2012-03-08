@@ -25,6 +25,7 @@ class Game:
         self._grid = GameGrid(x, y, z, self)
         self._grid.populate(calc_enemies(self.level))
         self.elev = self._grid.player.coords[2]
+        self.sticky_view = False
     
     # The following are functions called by the UI to change game state
     
@@ -32,7 +33,8 @@ class Game:
         self._grid.player.teleport()
         self._grid.set_tile(self._grid.player)
         self._grid.move_enemies()
-        self.zoom_to_player()
+        if not self.sticky_view:
+            self.zoom_to_player()
     
     def move_player(self, dx, dy, dz):
         try:
@@ -41,7 +43,8 @@ class Game:
             return False
         self._grid.set_tile(self._grid.player)
         self._grid.move_enemies()
-        self.zoom_to_player()
+        if  not self.sticky_view:
+            self.zoom_to_player()
         return True
     
     def next_level(self):
@@ -59,6 +62,8 @@ class Game:
     def zoom_to_elev(self, elev):
         self.elev = elev
     
+    def toggle_sticky_view(self):
+        self.sticky_view = not self.sticky_view
     
     # The following are functions called by the UI in order to display the
     # game to the player.

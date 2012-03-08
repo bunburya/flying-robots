@@ -21,7 +21,31 @@ t = Teleport to random location.
 w = Stay where you are and pass turns until you complete the level or die.
     You get a 10% bonus to score for each robot who dies in this period,
     but it only counts if you complete the level.
+s = Toggle "sticky" mode, in which your view stays fixed on the current
+    elevation even when you move. Sticky mode is indicated by the presence of
+    an "s" at the bottom of the info pane.
 q = Quit.
 
 Pg-up = View next level on z-axis, without moving.
 Pg-dn = View previous level on z-axis, without moving.
+p = View level on z-axis on which player is placed, without moving.
+g = Prompt for number of level on z-axis and view that level, without moving.
+
+---
+
+OPTIONS
+
+  -h, --help            show help message and exit
+  -c FILE, --config FILE
+                        provide a custom configuration file
+  -l LEVEL, --level LEVEL
+                        start playing at the specified level
+  -n NAME, --name NAME  specify player name
+  -x N                  specify length on x-axis of grid
+  -y N                  specify length on y-axis of grid
+  -z N                  specify length on z-axis of grid
+
+If you provide options that affect gameplay (ie pretty much any option other
+than name), the score achieved in the ensuing game will not be recorded in the
+high scores. This is so even if the values provided for the options are the
+same as the default ones.
