@@ -11,6 +11,8 @@ import ui
 from config import get_config, apply_opts_to_conf
 
 parser = ArgumentParser()
+parser.add_argument('-s', '--scores', dest='scores_only',   # this needs to not
+                    help='print high scores and exit')      # require a value
 parser.add_argument('-c', '--config', dest='conf_file',
                   help='provide a custom configuration file', metavar='FILE')
 parser.add_argument('-l', '--level', dest='start_level',
@@ -25,13 +27,17 @@ parser.add_argument('-z', dest='z', help='specify length on z-axis of grid',
                     metavar='N')
 
 options = parser.parse_args()
+if options.scores_only is not None:
+    from hs_handler import print_scores
+    print_scores()
+
 conf = get_config(options.conf_file)
 
 # Each key in this dict is the name of the relevant attribute in the options
 # object returned by parser.parse_args.
 # Each value is a 3-tuple containing the name of the section in the config
-# containing the setting, the name of the setting itself, and a boolean value
-# indicating whether changing this setting precludes the score from this game
+# containing the option, the name of the option itself, and a boolean value
+# indicating whether changing this option precludes the score from this game
 # from being counted towards the high scores (True if it does).
 optmap = {
     'name':         ('player', 'name', False),

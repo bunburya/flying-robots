@@ -20,6 +20,7 @@ class Game:
         self._grid.populate(calc_enemies(self.level))
         self.elev = self._grid.player.coords[2]
         self.sticky_view = False
+        self.move_afap = False
     
     # The following are functions called by the UI to change game state
     
@@ -31,15 +32,21 @@ class Game:
             self.zoom_to_player()
     
     def move_player(self, dx, dy, dz):
-        try:
-            self._grid.player.move(dx, dy, dz)
-        except BadTileError:
-            return False
-        self._grid.set_tile(self._grid.player)
-        self._grid.move_enemies()
-        if  not self.sticky_view:
-            self.zoom_to_player()
-        return True
+        # This isn't absolutely ideal, but it allows for the player to move
+        # as far as possible in the given direction if self.move_afap=True.
+        afap = self.move_afap
+        move_it = True
+        while move_it:
+            try:
+                self._grid.player.move(dx, dy, dz, True)
+            except BadTileError:
+                break
+            self._grid.set_tile(self._grid.player)
+            self._grid.move_enemies()
+            if not self.sticky_view:
+                self.zoom_to_player()
+            move_it = afap
+        self.move_afap = False
     
     def next_level(self):
         log('next level.')
@@ -58,6 +65,9 @@ class Game:
     
     def toggle_sticky_view(self):
         self.sticky_view = not self.sticky_view
+    
+    def toggle_afap_view(self):
+        self.move_afap = not self.move_afap
     
     # The following are functions called by the UI in order to display the
     # game to the player.

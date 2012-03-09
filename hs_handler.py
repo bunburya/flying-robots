@@ -40,6 +40,14 @@ def get_scores():
     with open(HS_FILE, 'r') as f:
         return _from_file(f)
 
+def print_scores():
+    scores = get_scores()
+    for p, s in enumerate(scores):
+        name, score = s
+        print('\t'.join((str(p+1), name, str(score))))
+    exit(0)
+        
+
 def add_score(name, score):
     """Takes name and score as arguments.
     Reads scorelist from file, updates it with given name and score, and

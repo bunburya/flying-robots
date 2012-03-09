@@ -48,7 +48,7 @@ class BaseMoveableObject(BaseObject):
         self._grid.clear_tile(self.coords)
         self.coords = new_coords
 
-    def _move_by(self, dx, dy, dz, empty_only=False):
+    def _move_by(self, dx, dy, dz, empty_only=False, safe_only=False):
         """Arguments are changes in x, y, z coords respectively.
         If optional fourth empty_only arg is True, raises BadTileError if
         tile being moved to is occupied. This is used when the player moves."""
@@ -64,11 +64,10 @@ class BaseMoveableObject(BaseObject):
         # was successful.
         if not self._grid.is_valid_tile(new):
             raise BadTileError('Tile out of bounds.')
-        # TODO: This currently raises BadTileError is the player is staying
-        # still, as the tile being "moved" to is occupied by itself.
-        # This means player can't stand still for a turn; fix this.
         if empty_only and (not self._grid._tile_is_empty(new)):
             raise BadTileError('Player cannot move onto occupied tile.')
+        if safe_only and (not self._grid.tile_is_safe(new)):
+            raise BadTileError('Tile not safe.')
         self._move_to(new)
 
 class BaseEnemy(BaseMoveableObject):
@@ -118,8 +117,8 @@ class Player(BaseMoveableObject):
     
     CLASS = 'player'
     
-    def move(self, dx, dy, dz):
-        self._move_by(dx, dy, dz, True)
+    def move(self, dx, dy, dz, safe_only=False):
+        self._move_by(dx, dy, dz, True, safe_only)
     
     def teleport(self):
         new = self._grid._get_random_empty_coords()

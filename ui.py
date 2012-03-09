@@ -70,7 +70,7 @@ class GameInterface:
         # move-as-far-as-possible mode etc, has been set.
         info_max_y, info_max_x = self.info_win.getmaxyx()
         self.sticky_yx = [info_max_y-2, 0]
-        self.mafap_yx = [info_max_y-2, 1]
+        self.afap_yx = [info_max_y-2, 1]
     
     def setup_nonmove_cmds(self):
         """Here we bind keys to their functions."""
@@ -82,7 +82,8 @@ class GameInterface:
             'p':                    self.zoom_to_player,
             'w':                    self.wait,
             'g':                    self.prompt_goto_elev,
-            's':                    self.toggle_sticky_view
+            's':                    self.toggle_sticky_view,
+            'f':                    self.toggle_afap_view
             }
     
     def update_grid(self):
@@ -109,6 +110,9 @@ class GameInterface:
         sticky = 's' if self.game.sticky_view else ' '
         y, x = self.sticky_yx
         self.info_win.addstr(y, x, sticky)
+        afap = 'f' if self.game.move_afap else ' '
+        y, x = self.afap_yx
+        self.info_win.addstr(y, x, afap)
         self.info_win.noutrefresh()
     
     def mainloop(self):
@@ -208,12 +212,15 @@ class GameInterface:
         self.game.toggle_sticky_view()
         self.update_info()
     
+    def toggle_afap_view(self):
+        self.game.toggle_afap_view()
+        self.update_info()
+    
     def handle_hiscores(self):
         scores, posn = add_score(self.game.name, self.game.score)
         self.print_hiscores(scores, posn)
     
     def print_hiscores(self, scores, posn):
-        log('print_hiscores called with posn {}'.format(posn))
         self.grid_win.clear()
         self.grid_win.addstr(1, 1, 'Pos\tName\tScore')
         for _posn, (name, score) in enumerate(scores):

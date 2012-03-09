@@ -1,5 +1,7 @@
 import random
 from copy import deepcopy
+from itertools import product
+from operator import add
 
 from chars import Player, Robot, TestRobot, Junk, gameclass
 from exceptions import BadTileError, LevelComplete, GameOver
@@ -84,6 +86,18 @@ class GameGrid:
     
     def _grid_is_empty(self):
         return self._grid == self._EMPTY_GRID
+    
+    def tile_is_safe(self, coords):
+        neighbours = product((-1, 0, 1), repeat=3)
+        for n in neighbours:
+            try:
+                gc = gameclass(self._get_tile(map(add, coords, n)))
+            except BadTileError:
+                # Tile is out of bounds, and therefore not dangerous.
+                continue
+            if gc == 'robot':
+                return False
+        return True
     
     def is_valid_tile(self, coords):
         x, y, z = coords
