@@ -52,10 +52,7 @@ class BaseMoveableObject(BaseObject):
         """Arguments are changes in x, y, z coords respectively.
         If optional fourth empty_only arg is True, raises BadTileError if
         tile being moved to is occupied. This is used when the player moves."""
-        if dx == dy == dz == 0:
-            # Player is standing still for this turn. Don't do any more moving
-            # related stuff, just return without raising an error.
-            return
+        stay = (dx == dy == dz == 0)
         old = self.coords
         new = [old[0] + dx, old[1] + dy, old[2] + dz]
         # TODO: Get rid of BadTileError, and just return without doing anything
@@ -64,7 +61,7 @@ class BaseMoveableObject(BaseObject):
         # was successful.
         if not self._grid.is_valid_tile(new):
             raise BadTileError('Tile out of bounds.')
-        if empty_only and (not self._grid._tile_is_empty(new)):
+        if empty_only and (not stay) and (not self._grid._tile_is_empty(new)):
             raise BadTileError('Player cannot move onto occupied tile.')
         if safe_only and (not self._grid.tile_is_safe(new)):
             raise BadTileError('Tile not safe.')

@@ -88,15 +88,21 @@ class GameGrid:
         return self._grid == self._EMPTY_GRID
     
     def tile_is_safe(self, coords):
+        from random import random
         neighbours = product((-1, 0, 1), repeat=3)
+        log('checking {}'.format(coords))
+        log(random())
         for n in neighbours:
             try:
                 gc = gameclass(self._get_tile(map(add, coords, n)))
+                log('{}: {}'.format(n, gc))
             except BadTileError:
                 # Tile is out of bounds, and therefore not dangerous.
                 continue
             if gc == 'robot':
+                log('unsafe')
                 return False
+        log('safe')
         return True
     
     def is_valid_tile(self, coords):
