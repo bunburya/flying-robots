@@ -8,7 +8,7 @@ else:
 from curses import wrapper
 
 import ui
-from config import get_config, apply_opts_to_conf
+from config import get_config, apply_opts_to_conf, validate_conf
 
 parser = ArgumentParser()
 parser.add_argument('-s', '--scores', dest='scores_only',   # this needs to not
@@ -48,5 +48,5 @@ optmap = {
     }
 
 apply_opts_to_conf(conf, options, optmap)
-
+validate_conf(conf)
 wrapper(lambda s: ui.GameInterface(s, conf))

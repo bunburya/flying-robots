@@ -101,15 +101,6 @@ class Robot(BaseMoveableObject):
     def move(self):
         self._move_towards_player(self._speed)
 
-class TestRobot(Robot):
-    """An enemy that doesn't move, for testing purposes."""
-    
-    CLASS = 'robot'
-    KILLSCORE = 10
-    
-    def move(self):
-        pass
-
 class Player(BaseMoveableObject):
     
     CLASS = 'player'

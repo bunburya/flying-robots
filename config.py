@@ -42,6 +42,20 @@ def _get_default_conf(conf, write_to=None):
         with open(write_to, 'w') as f:
             conf.write(f)
 
+def validate_conf(conf):
+    grid = conf['grid']
+    game = conf['game']
+    try:
+        grid.getint('x')
+        grid.getint('y')
+        grid.getint('z')
+        game.getint('start_level')
+        game.getboolean('hiscore')
+    except ValueError as e:
+        bad_val = e.args[0].split()[-1]
+        print('Invalid configuration option: {}'.format(bad_val))
+        quit(1)
+
 def apply_opts_to_conf(conf, opts, optmap):
     for o in optmap:
         sect, name, no_hiscore = optmap[o]
@@ -49,7 +63,6 @@ def apply_opts_to_conf(conf, opts, optmap):
         if val is None:
             continue
         conf[sect][name] = val
-        #conf.set(sect, name, val)
         if no_hiscore:
             conf['game']['hiscore'] = 'no'
 

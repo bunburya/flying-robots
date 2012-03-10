@@ -3,7 +3,7 @@ from copy import deepcopy
 from itertools import product
 from operator import add
 
-from chars import Player, Robot, TestRobot, Junk, gameclass
+from chars import Player, Robot, Junk, gameclass
 from exceptions import BadTileError, LevelComplete, GameOver
 
 from debug import log
