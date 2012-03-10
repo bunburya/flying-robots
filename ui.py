@@ -164,9 +164,7 @@ class GameInterface:
         self.view_elev(self.game.elev+1)
     
     def wait(self):
-        self.game.waiting = True
-        while True:
-            self.move('x')
+        self.game.wait()
     
     def get_yn(self, prompt, default=True):
         self.grid_win.addstr(0, 0, prompt)

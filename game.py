@@ -31,14 +31,14 @@ class Game:
         if not self.sticky_view:
             self.zoom_to_player()
     
-    def move_player(self, dx, dy, dz):
+    def move_player(self, dx, dy, dz, safe_only=True):
         # This isn't absolutely ideal, but it allows for the player to move
         # as far as possible in the given direction if self.move_afap=True.
         afap = self.move_afap
         move_it = True
         while move_it:
             try:
-                self._grid.player.move(dx, dy, dz, True)
+                self._grid.player.move(dx, dy, dz, safe_only)
             except BadTileError:
                 break
             self._grid.set_tile(self._grid.player)
@@ -47,6 +47,11 @@ class Game:
                 self.zoom_to_player()
             move_it = afap
         self.move_afap = False
+    
+    def wait(self):
+        self.waiting = True
+        while True:
+            self.move_player(0, 0, 0, False)
     
     def next_level(self):
         log('next level.')
