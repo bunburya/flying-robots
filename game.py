@@ -56,6 +56,8 @@ class Game:
     def next_level(self):
         log('next level.')
         self.waiting = False
+        self.move_afap = False
+        self.sticky_view = False
         self.score += self.wait_bonus
         self.wait_bonus = 0
         self.level += 1
