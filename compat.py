@@ -7,7 +7,7 @@ from optparse import OptionParser
 ### ConfigParser
 
 class _Section:
-    
+
     def __init__(self, parent, name):
         self.parent = parent
         self.name = name
@@ -20,6 +20,19 @@ class _Section:
     
     def __contains__(self, option):
         return self.parent.has_option(self.name, option)
+
+    def get(self, option, default=None):
+        if self.parent.has_option(self.name, option):
+            return self[option]
+        else:
+            return default
+
+    def getint(self, option):
+        return self.parent.getint(self.name, option)
+
+    def getboolean(self, option):
+        return self.parent.getboolean(self.name, option)
+
 
 class ConfigParser(ConfigParser_pre32):
     
