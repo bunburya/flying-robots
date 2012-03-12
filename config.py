@@ -42,6 +42,18 @@ def _get_default_conf(conf, write_to=None):
         with open(write_to, 'w') as f:
             conf.write(f)
 
+def get_config(conf_file=None):
+    # See OptionParser options in main.py for the options we consider here.
+    # TODO: This is messy and not easily extensible. Maybe find a better way.
+    conf = ConfigParser()
+    if conf_file and isfile(conf_file):
+        log('conf file found')
+        _get_conf_from_file(conf, conf_file)
+    else:
+        log('no conf file found')
+        _get_default_conf(conf)
+    return conf
+
 def validate_conf(conf):
     grid = conf['grid']
     game = conf['game']
@@ -69,13 +81,3 @@ def apply_opts_to_conf(conf, opts, optmap):
 def write_default_conf():
     conf_file = get_conf_filepath('default.conf')
     _get_default_conf(ConfigParser(), conf_file)
-
-def get_config(conf_file=None):
-    # See OptionParser options in main.py for the options we consider here.
-    # TODO: This is messy and not easily extensible. Maybe find a better way.
-    conf = ConfigParser()
-    if conf_file and isfile(conf_file):
-        _get_conf_from_file(conf)
-    else:
-        _get_default_conf(conf)
-    return conf
