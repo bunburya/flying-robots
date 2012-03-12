@@ -190,9 +190,9 @@ class GameGrid:
         # during iteration.
         enemy.is_alive = False
         if self._game.waiting:
-            self._game.wait_bonus += int(enemy.KILLSCORE * 1.1)
+            self._game.wait_bonus += int(enemy.__killscore__ * 1.1)
         else:
-            self._game.score += enemy.KILLSCORE
+            self._game.score += enemy.__killscore__
         coords = enemy.coords
         self._objects.discard(enemy)            
 

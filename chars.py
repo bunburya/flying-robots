@@ -20,14 +20,14 @@ def gameclass(obj):
     if obj is None:
         return 'empty'
     else:
-        return obj.CLASS
+        return obj.__gameclass__
 
 class BaseObject:
     
     """A base class representing anything that can occupy a tile on a
     grid."""
     
-    CLASS = ''
+    __gameclass__ = ''
     
     def __init__(self, coords, grid):
         self.coords = coords
@@ -38,7 +38,7 @@ class Junk(BaseObject):
     """A class representing the junk left behind when 2 or more robots
     collide."""
     
-    CLASS = 'junk'
+    __gameclass__ = 'junk'
 
 class BaseMoveableObject(BaseObject):
     
@@ -69,8 +69,8 @@ class BaseMoveableObject(BaseObject):
 
 class BaseEnemy(BaseMoveableObject):
     
-    CLASS = None
-    KILLSCORE = None
+    __gameclass__ = None
+    __killscore__ = None
     
     def __init__(self, coords, grid, speed=1):
         self.is_alive = True
@@ -78,8 +78,8 @@ class BaseEnemy(BaseMoveableObject):
 
 class Robot(BaseMoveableObject):
     
-    CLASS = 'robot'
-    KILLSCORE = 10
+    __gameclass__ = 'robot'
+    __killscore__ = 10
 
     def __init__(self, coords, grid, speed=1):
         self._speed = speed
@@ -103,7 +103,7 @@ class Robot(BaseMoveableObject):
 
 class Player(BaseMoveableObject):
     
-    CLASS = 'player'
+    __gameclass__ = 'player'
     
     def move(self, dx, dy, dz, safe_only=False):
         self._move_by(dx, dy, dz, True, safe_only)
