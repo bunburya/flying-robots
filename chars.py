@@ -26,9 +26,7 @@ class BaseObject:
     
     """A base class representing anything that can occupy a tile on a
     grid."""
-    
-    __gameclass__ = ''
-    
+        
     def __init__(self, coords, grid):
         self.coords = coords
         self._grid = grid
@@ -68,9 +66,6 @@ class BaseMoveableObject(BaseObject):
         self._move_to(new)
 
 class BaseEnemy(BaseMoveableObject):
-    
-    __gameclass__ = None
-    __killscore__ = None
     
     def __init__(self, coords, grid, speed=1):
         self.is_alive = True
