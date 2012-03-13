@@ -27,6 +27,7 @@ s = Toggle "sticky" mode, in which your view stays fixed on the current
 f = Toggle "as-far-as-possible" mode. When you press a movement key while in
     this mode, you move as far as is safe in that direction. As-far-as-possible
     mode is indicated by the presence of a "f" at the bottom of the info pane.
+    This mode is unset after each turn.
 q = Quit.
 
 Pg-up = View next level on z-axis, without moving.
@@ -37,8 +38,8 @@ g = Prompt for number of level on z-axis and view that level, without moving.
 ---
 
 OPTIONS
-
-  -h, --help            show help message and exit
+  -h, --help            show this help message and exit
+  -s, --scores          print high scores and exit
   -c FILE, --config FILE
                         provide a custom configuration file
   -l LEVEL, --level LEVEL

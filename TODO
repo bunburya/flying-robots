@@ -4,4 +4,6 @@ TODO ASAP:
 
 - Proper logging.
 
-- Advanced start level bonus.
+- Advanced start, with bonus (-a).
+
+- Teleport when necessary (-t).

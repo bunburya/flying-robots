@@ -20,6 +20,8 @@ def is_ctrl(ch):
 
 class GameInterface:
     
+    info_win_width = 18
+    
     charmap = {
         'robot':    '+',
         'player':   '@',
@@ -46,6 +48,11 @@ class GameInterface:
     
     def __init__(self, stdscr, config):
         self.stdscr = stdscr
+        my, mx = stdscr.getmaxyx()      # size of screen
+        gy = config['grid'].getint('y') + 2 # size required for grid
+        gx = config['grid'].getint('x') + 2 + self.info_win_width
+        if (my < gy) or (mx < gx):
+            self.quit(1, 'flybots needs a screen of at least {}x{}.'.format(gx, gy))
         self.hiscore_game = config['game'].getboolean('hiscore')
         curses.noecho()
         curses.cbreak()
@@ -231,9 +238,11 @@ class GameInterface:
         self.grid_win.refresh()
         self.stdscr.getch(0, 0) # Wait until player hits a key before quitting.
 
-    def quit(self, status=0):
+    def quit(self, status=0, msg=None):
         self.stdscr.keypad(0)
         curses.nocbreak()
         curses.echo()
         curses.endwin()
+        if msg is not None:
+            print(msg)
         quit(status)
