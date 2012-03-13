@@ -16,18 +16,18 @@ class Game:
         z = config['grid'].getint('z')
         self.name = config['player']['name']
         self.grid_size = [x, y, z]
-        self._grid = GameGrid(x, y, z, self)
-        self._grid.populate(calc_enemies(self.level))
-        self.elev = self._grid.player.coords[2]
+        self.grid = GameGrid(x, y, z, self)
+        self.grid.populate(calc_enemies(self.level))
+        self.elev = self.grid.player.coords[2]
         self.sticky_view = False
         self.move_afap = False
     
     # The following are functions called by the UI to change game state
     
     def teleport_player(self):
-        self._grid.player.teleport()
-        self._grid.set_tile(self._grid.player)
-        self._grid.move_enemies()
+        self.grid.player.teleport()
+        self.grid.place_char(self.grid.player)
+        self.grid.move_enemies()
         if not self.sticky_view:
             self.zoom_to_player()
     
@@ -38,11 +38,11 @@ class Game:
         move_it = True
         while move_it:
             try:
-                self._grid.player.move(dx, dy, dz, safe_only)
+                self.grid.player.move(dx, dy, dz, safe_only)
             except BadTileError:
                 break
-            self._grid.set_tile(self._grid.player)
-            self._grid.move_enemies()
+            self.grid.place_char(self.grid.player)
+            self.grid.move_enemies()
             if not self.sticky_view:
                 self.zoom_to_player()
             move_it = afap
@@ -61,11 +61,11 @@ class Game:
         self.score += self.wait_bonus
         self.wait_bonus = 0
         self.level += 1
-        self._grid.populate(calc_enemies(self.level))
+        self.grid.populate(calc_enemies(self.level))
         self.zoom_to_player()
     
     def zoom_to_player(self):
-        self.elev = self._grid.player.coords[2]
+        self.elev = self.grid.player.coords[2]
     
     def zoom_to_elev(self, elev):
         self.elev = elev
@@ -80,12 +80,12 @@ class Game:
     # game to the player.
     
     def view_grid(self):
-        return self._grid.view_plan(self.elev)
+        return self.grid.view_plan(self.elev)
     
     @property
     def player_coords(self):
-        return self._grid.player.coords
+        return self.grid.player.coords
     
     @property
     def enemy_count(self):
-        return len(self._grid._enemies)
+        return len(self.grid.enemies)

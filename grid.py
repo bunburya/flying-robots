@@ -23,51 +23,37 @@ class GameGrid:
 
     
     def __init__(self, x, y, z, game):
-        self._game = game
-        self._EMPTY_GRID = self._get_empty_grid(x, y, z)
-        self._EMPTY_PLAN = self._get_empty_view(x, y)
-        self._EMPTY_ELEV = self._get_empty_view(x, z)
-        self._grid = self._copy_empty_grid()
+        self.game = game
+        self.grid = self.get_empty_grid(x, y, z)
+        self.objects = set()
         self.x = x
         self.y = y
         self.z = z
     
-    def _get_empty_grid(self, x, y, z):
-        """Creates an empty grid of the appropriate dimensions and
+    def get_empty_grid(self, x, y, z):
+        """Creates an empty grid of the app ropriate dimensions and
         binds it to the current instance."""
         return [[[None for i in range(x)] for j in range(y)] for k in range(z)]
     
-    def _get_empty_view(self, x, y):
-        """Creates an empty 2D grid, representing a view of the 3D grid."""
-        return [[None for i in range(x)] for j in range(y)]
-
-    def _copy_empty_grid(self):
-        """Returns a deepcopy of the instance's empty grid; this is more
-        efficient than generating a new one from scratch every time.
-        
-        At least, it's supposed to be, but doesn't seem to be, so consider
-        removing this."""
-        #return [x[:] for x in [y[:] for y in [z[:] for z in self._EMPTY_GRID]]]
-        return deepcopy(self._EMPTY_GRID)
-    
-    def _copy_empty_view(self, view):
-        return [x[:] for x in [y[:] for y in view]]
+    def clear_grid(self):
+        for obj in self.objects:
+            self.clear_tile(obj.coords)
     
     def clear_tile(self, coords):
-        self._set_tile(coords, None)
+        self.set_tile(coords, None)
     
-    def _set_tile(self, coords, new):
+    def set_tile(self, coords, new):
         x, y, z = coords
-        self._grid[z][y][x] = new
-    
-    def _get_tile(self, coords):
+        self.grid[z][y][x] = new
+
+    def get_tile(self, coords):
         x, y, z = coords
         try:
-            return self._grid[z][y][x]
+            return self.grid[z][y][x]
         except IndexError:
             raise BadTileError('Cannot get tile at {},{},{}: Tile not in grid'.format(x, y, z))
     
-    def _get_random_coords(self):
+    def get_random_coords(self):
         coords = [
             random.randint(0, self.x-1),
             random.randint(0, self.y-1),
@@ -75,24 +61,27 @@ class GameGrid:
             ]
         return coords
     
-    def _get_random_empty_coords(self):
+    def get_random_empty_coords(self):
         while True:
-            coords = self._get_random_coords()
-            if self._tile_is_empty(coords):
+            coords = self.get_random_coords()
+            if self.tile_is_empty(coords):
                 return coords
     
-    def _tile_is_empty(self, coords):
-        return gameclass(self._get_tile(coords)) == 'empty'
+    def tile_is_empty(self, coords):
+        return gameclass(self.get_tile(coords)) == 'empty'
     
-    def _grid_is_empty(self):
+    def grid_is_empty(self):
         return self._grid == self._EMPTY_GRID
     
     def tile_is_safe(self, coords):
-        from random import random
+        # TODO: Don't do this call to product every time. Generate neighbours
+        # once and reuse it.
+        # Maybe create a separate get_neighbours func, which takes coords
+        # and returns list of absolute coords of neighbours.
         neighbours = product((-1, 0, 1), repeat=3)
         for n in neighbours:
             try:
-                gc = gameclass(self._get_tile(map(add, coords, n)))
+                gc = gameclass(self.get_tile(map(add, coords, n)))
             except BadTileError:
                 # Tile is out of bounds, and therefore not dangerous.
                 continue
@@ -105,50 +94,25 @@ class GameGrid:
         return (min(coords) >= 0) and (x <= self.x) and (y <= self.y) and (z <= self.z)
     
     def populate(self, enemies):
-        self._grid = self._copy_empty_grid()
+        #self._grid = self._copy_empty_grid()
+        self.clear_grid()
         _enemies = set()
         while enemies:
-            coords = self._get_random_empty_coords()
+            coords = self.get_random_empty_coords()
             robot = Robot(coords, self)
             _enemies.add(robot)
-            self._set_tile(coords, robot)
+            self.set_tile(coords, robot)
             enemies -= 1
-        self._enemies = _enemies
-        self._objects = deepcopy(_enemies)
-        coords = self._get_random_empty_coords()
+        self.enemies = _enemies
+        self.objects = deepcopy(_enemies)
+        coords = self.get_random_empty_coords()
         self.player = Player(coords, self)
-        self._set_tile(coords, self.player)
-        self._objects.add(self.player)
+        self.set_tile(coords, self.player)
+        self.objects.add(self.player)
     
-    def populate_test(self, enemies):
-        self._grid = self._copy_empty_grid()
-        _enemies = set()
-        r = Robot([2, 2, 2], self)
-        self._set_tile([2, 2, 2], r)
-        _enemies.add(r)
-        r = Robot([3, 2, 2], self)
-        self._set_tile([3, 2, 2], r)
-        _enemies.add(r)
-        r = Robot([4, 2, 2], self)
-        self._set_tile([4, 2, 2], r)
-        _enemies.add(r)
-        r = Robot([4, 3, 2], self)
-        self._set_tile([4, 3, 2], r)
-        _enemies.add(r)
-        self._enemies = _enemies
-        self._objects = deepcopy(_enemies)
-        coords = self._get_random_empty_coords()
-        try:
-            del self.player
-        except AttributeError:
-            pass
-        self.player = Player([7, 2, 2], self)
-        self._set_tile([7, 2, 2], self.player)
-        self._objects.add(self.player)
-    
-    def set_tile(self, new):
+    def place_char(self, new):
         coords = new.coords
-        incumbent = self._get_tile(coords)
+        incumbent = self.get_tile(coords)
         if new == incumbent:
             # Character has not moved.
             # Happens when player tries to move out of bounds or stays still.
@@ -158,7 +122,7 @@ class GameGrid:
         # Player is prevented from moving onto occupied tile before this stage;
         # therefore, if incumbent_cls != 'empty', new must be robot.
         if (incumbent_cls == 'empty') or (new_cls == 'empty'):
-            self._set_tile(coords, new)
+            self.set_tile(coords, new)
         elif incumbent_cls == 'player':
             # Robot collides with player; player dies, game over.
             raise GameOver('You died!')
@@ -166,8 +130,8 @@ class GameGrid:
             self.kill(incumbent)
             self.kill(new)
             j = Junk(coords, self)
-            self._set_tile(coords, j)
-            self._objects.add(j)
+            self.set_tile(coords, j)
+            self.objects.add(j)
         elif incumbent_cls == 'junk':
             self.kill(new)
     
@@ -189,12 +153,12 @@ class GameGrid:
         # all enemies have moved, as the size of the set cannot be changed
         # during iteration.
         enemy.is_alive = False
-        if self._game.waiting:
-            self._game.wait_bonus += int(enemy.__killscore__ * 1.1)
+        if self.game.waiting:
+            self.game.wait_bonus += int(enemy.__killscore__ * 1.1)
         else:
-            self._game.score += enemy.__killscore__
+            self.game.score += enemy.__killscore__
         coords = enemy.coords
-        self._objects.discard(enemy)            
+        self.objects.discard(enemy)            
 
     def move_enemies(self):
         # Moving enemies has several stages.
@@ -206,14 +170,14 @@ class GameGrid:
         #   placed in its new position on the grid.
         #   Collisions are handled at this point.
         # - Dead enemies are removed from self._enemies.
-        for e in self._enemies:
+        for e in self.enemies:
             e.move()
-        for e in self._enemies:
-            self.set_tile(e)
-        dead_enemies = {e for e in self._enemies if not e.is_alive}
-        self._enemies.difference_update(dead_enemies)
-        self._objects.difference_update(dead_enemies)
-        if not self._enemies:
+        for e in self.enemies:
+            self.place_char(e)
+        dead_enemies = {e for e in self.enemies if not e.is_alive}
+        self.enemies.difference_update(dead_enemies)
+        self.objects.difference_update(dead_enemies)
+        if not self.enemies:
             raise LevelComplete
 
     # Player can only view one "floor" of the grid at a time, and always views
@@ -222,6 +186,6 @@ class GameGrid:
     def view_plan(self, elev=None):
         if elev is None:
             elev = self.player.coords[2]
-        plan = self._grid[elev]
+        plan = self.grid[elev]
         return plan
     

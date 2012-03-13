@@ -11,8 +11,8 @@ import ui
 from config import get_config, apply_opts_to_conf, validate_conf
 
 parser = ArgumentParser()
-parser.add_argument('-s', '--scores', dest='scores_only',   # this needs to not
-                    help='print high scores and exit')      # require a value
+parser.add_argument('-s', '--scores', dest='scores_only', action='store_true',
+                    help='print high scores and exit')
 parser.add_argument('-c', '--config', dest='conf_file',
                   help='provide a custom configuration file', metavar='FILE')
 parser.add_argument('-l', '--level', dest='start_level',
@@ -27,7 +27,7 @@ parser.add_argument('-z', dest='z', help='specify length on z-axis of grid',
                     metavar='N')
 
 options = parser.parse_args()
-if options.scores_only is not None:
+if options.scores_only:
     from hs_handler import print_scores
     print_scores()
 

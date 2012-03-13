@@ -29,7 +29,7 @@ class BaseObject:
         
     def __init__(self, coords, grid):
         self.coords = coords
-        self._grid = grid
+        self.grid = grid
 
 class Junk(BaseObject):
     
@@ -43,7 +43,7 @@ class BaseMoveableObject(BaseObject):
     """A base class representing anything that can move on a grid."""
 
     def _move_to(self, new_coords):
-        self._grid.clear_tile(self.coords)
+        self.grid.clear_tile(self.coords)
         self.coords = new_coords
 
     def _move_by(self, dx, dy, dz, empty_only=False, safe_only=False):
@@ -57,11 +57,11 @@ class BaseMoveableObject(BaseObject):
         # instead.
         # Possibly return a bool, okay_to_proceed, indicating whether the move
         # was successful.
-        if not self._grid.is_valid_tile(new):
+        if not self.grid.is_valid_tile(new):
             raise BadTileError('Tile out of bounds.')
-        if empty_only and (not stay) and (not self._grid._tile_is_empty(new)):
-            raise BadTileError('Player cannot move onto occupied tile.')
-        if safe_only and (not self._grid.tile_is_safe(new)):
+        if empty_only and (not stay) and (not self.grid.tile_is_empty(new)):
+            raise BadTileError('Player cannot move onto ccupied tile.')
+        if safe_only and (not self.grid.tile_is_safe(new)):
             raise BadTileError('Tile not safe.')
         self._move_to(new)
 
@@ -77,13 +77,13 @@ class Robot(BaseMoveableObject):
     __killscore__ = 10
 
     def __init__(self, coords, grid, speed=1):
-        self._speed = speed
+        self.speed = speed
         BaseEnemy.__init__(self, coords, grid)
     
     def _move_towards_player(self, times=1):
         to_move = []
         self_coords = self.coords
-        player_coords = self._grid.player.coords
+        player_coords = self.grid.player.coords
         for s, p in zip(self_coords, player_coords):
             if s < p:
                 to_move.append(times)
@@ -94,7 +94,7 @@ class Robot(BaseMoveableObject):
         self._move_by(*to_move)
     
     def move(self):
-        self._move_towards_player(self._speed)
+        self._move_towards_player(self.speed)
 
 class Player(BaseMoveableObject):
     
@@ -104,5 +104,5 @@ class Player(BaseMoveableObject):
         self._move_by(dx, dy, dz, True, safe_only)
     
     def teleport(self):
-        new = self._grid._get_random_empty_coords()
+        new = self.grid.get_random_empty_coords()
         self._move_to(new)
