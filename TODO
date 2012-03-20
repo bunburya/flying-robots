@@ -1,5 +1,7 @@
 TODO ASAP:
 
+- Man page outlining options and controls.
+
 - Proper high scores system, similar to bsd-robots or nethack.
   Game belongs to "games" group and can write to central scorefile in
   /var/games or whatever.
