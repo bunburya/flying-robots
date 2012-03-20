@@ -37,7 +37,7 @@ Basic movement buttons are:
 y k u
  \|/
 h-x-l
- /|\
+ /|\\
 b j n
 
 Holding shift while pressing any of the above also moves up the z-axis.
