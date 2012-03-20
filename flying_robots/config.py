@@ -6,8 +6,6 @@ if version_info.minor >= 2:
 else:
     from compat import ConfigParser, ParsingError
 
-from debug import log
-
 CONF_DIR = expanduser('~/.flying_robots')
 if not isdir(CONF_DIR):
     mkdir(CONF_DIR)
@@ -25,7 +23,7 @@ def calc_enemies(level):
 def _get_conf_from_file(conf, f):
     try:
         conf.read(f)
-        conf.set('game', 'hiscore', 'no')
+        conf['game']['hiscore'] = 'no'
     except ParsingError as e:
         print('Error parsing config file.')
         print('Error details:', ' '.join(e.args))
@@ -43,14 +41,10 @@ def _get_default_conf(conf, write_to=None):
             conf.write(f)
 
 def get_config(conf_file=None):
-    # See OptionParser options in main.py for the options we consider here.
-    # TODO: This is messy and not easily extensible. Maybe find a better way.
     conf = ConfigParser()
     if conf_file and isfile(conf_file):
-        log('conf file found')
         _get_conf_from_file(conf, conf_file)
     else:
-        log('no conf file found')
         _get_default_conf(conf)
     return conf
 

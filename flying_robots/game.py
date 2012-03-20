@@ -1,8 +1,7 @@
-from chars import gameclass
-from grid import GameGrid
-from exceptions import BadTileError, LevelComplete, GameOver
-from config import get_config, calc_enemies
-from debug import log
+from .chars import gameclass
+from .grid import GameGrid
+from .exceptions import BadTileError, LevelComplete, GameOver
+from .config import get_config, calc_enemies
 
 class Game:
 
@@ -54,7 +53,6 @@ class Game:
             self.move_player(0, 0, 0, False)
     
     def next_level(self):
-        log('next level.')
         self.waiting = False
         self.move_afap = False
         self.sticky_view = False

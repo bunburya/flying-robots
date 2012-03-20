@@ -7,8 +7,8 @@ else:
     from argparse import ArgumentParser
 from curses import wrapper
 
-import ui
-from config import get_config, apply_opts_to_conf, validate_conf
+from flying_robots import ui
+from flying_robots.config import get_config, apply_opts_to_conf, validate_conf
 
 parser = ArgumentParser()
 parser.add_argument('-s', '--scores', dest='scores_only', action='store_true',

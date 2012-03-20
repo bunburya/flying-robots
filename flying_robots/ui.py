@@ -2,12 +2,10 @@
 
 import curses
 
-from game import Game
-from exceptions import LevelComplete, GameOver
-from chars import gameclass
-from hs_handler import get_scores, add_score
-
-from debug import log
+from .game import Game
+from .exceptions import LevelComplete, GameOver
+from .chars import gameclass
+from .hs_handler import get_scores, add_score
 
 def ctrl(ch):
     return chr(ord(ch)-96)
@@ -123,7 +121,7 @@ class GameInterface:
     
     def mainloop(self):
         while True:
-            y, x = reversed(self.game.player_coords[:2])
+            x, y = self.game.player_coords[:2]
             cmd_key = chr(self.stdscr.getch(0, 0))
             try:
                 self.handle_cmd(cmd_key)

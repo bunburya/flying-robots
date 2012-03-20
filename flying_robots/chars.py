@@ -1,7 +1,6 @@
 class BadCharmapError(BaseException): pass
 
-from debug import log
-from exceptions import BadTileError
+from .exceptions import BadTileError
 
 gameclasses = {
         'empty',

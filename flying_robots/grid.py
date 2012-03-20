@@ -3,10 +3,8 @@ from copy import deepcopy
 from itertools import product
 from operator import add
 
-from chars import Player, Robot, Junk, gameclass
-from exceptions import BadTileError, LevelComplete, GameOver
-
-from debug import log
+from .chars import Player, Robot, Junk, gameclass
+from .exceptions import BadTileError, LevelComplete, GameOver
 
 class GameGrid:
     
@@ -31,7 +29,7 @@ class GameGrid:
         self.z = z
     
     def get_empty_grid(self, x, y, z):
-        """Creates an empty grid of the app ropriate dimensions and
+        """Creates an empty grid of the appropriate dimensions and
         binds it to the current instance."""
         return [[[None for i in range(x)] for j in range(y)] for k in range(z)]
     
@@ -94,7 +92,6 @@ class GameGrid:
         return (min(coords) >= 0) and (x <= self.x) and (y <= self.y) and (z <= self.z)
     
     def populate(self, enemies):
-        #self._grid = self._copy_empty_grid()
         self.clear_grid()
         _enemies = set()
         while enemies:
