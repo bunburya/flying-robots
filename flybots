@@ -11,6 +11,8 @@ from flying_robots import ui
 from flying_robots.config import get_config, apply_opts_to_conf, validate_conf
 
 parser = ArgumentParser()
+parser.add_argument('-H', '--controls', dest='controls', action='store_true',
+                    help='display game controls and exit')
 parser.add_argument('-s', '--scores', dest='scores_only', action='store_true',
                     help='print high scores and exit')
 parser.add_argument('-c', '--config', dest='conf_file',
@@ -27,8 +29,12 @@ parser.add_argument('-z', dest='z', help='specify length on z-axis of grid',
                     metavar='N')
 
 options = parser.parse_args()
+if options.controls:
+    with open('CONTROLS', 'r') as f:
+        print(f.read())
+    exit(0)
 if options.scores_only:
-    from hs_handler import print_scores
+    from flying_robots.hs_handler import print_scores
     print_scores()
 
 conf = get_config(options.conf_file)
