@@ -1,5 +1,9 @@
 TODO ASAP:
 
+- Proper high scores system, similar to bsd-robots or nethack.
+  Game belongs to "games" group and can write to central scorefile in
+  /var/games or whatever.
+
 - Proper game over screen, including prompt to play again.
 
 - Proper logging.
