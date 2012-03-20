@@ -14,5 +14,5 @@ setup(
         long_description=long_desc,
         download_url='https://github.com/bunburya/FlyingRobots',
         platforms=['unix', 'posix', 'linux', 'bsd'],
-        license='MIT License'
+        license='MIT'
         )
