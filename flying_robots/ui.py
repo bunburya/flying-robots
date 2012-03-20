@@ -205,7 +205,7 @@ class GameInterface:
             self.quit()
     
     def prompt_goto_elev(self):
-        elev = self.get_num('Goto:')
+        elev = self.get_num('Goto:', self.game.elev)
         if 0 < elev <= self.grid_size[2]:
             self.game.zoom_to_elev(elev)
         self.update_grid()
