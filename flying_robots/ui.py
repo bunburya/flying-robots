@@ -122,7 +122,7 @@ class GameInterface:
     def mainloop(self):
         while True:
             x, y = self.game.player_coords[:2]
-            cmd_key = chr(self.stdscr.getch(0, 0))
+            cmd_key = chr(self.stdscr.getch(y+1, x+1))  # player posn on grid
             try:
                 self.handle_cmd(cmd_key)
             except GameOver:
@@ -183,9 +183,9 @@ class GameInterface:
         try:
             curses.echo()
             val = int(self.grid_win.getstr(0, len(prompt)))
-            curses.noecho()
         except ValueError:
             val = default
+        curses.noecho()
         self.grid_win.border()
         self.grid_win.refresh()
         return val
