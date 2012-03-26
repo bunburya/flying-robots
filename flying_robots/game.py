@@ -71,7 +71,7 @@ class Game:
     def toggle_sticky_view(self):
         self.sticky_view = not self.sticky_view
     
-    def toggle_afap_view(self):
+    def toggle_afap(self):
         self.move_afap = not self.move_afap
     
     # The following are functions called by the UI in order to display the

@@ -87,7 +87,7 @@ class GameInterface:
             'w':                    self.wait,
             'g':                    self.prompt_goto_elev,
             's':                    self.toggle_sticky_view,
-            'f':                    self.toggle_afap_view
+            'f':                    self.toggle_afap
             }
     
     def update_grid(self):
@@ -214,8 +214,8 @@ class GameInterface:
         self.game.toggle_sticky_view()
         self.update_info()
     
-    def toggle_afap_view(self):
-        self.game.toggle_afap_view()
+    def toggle_afap(self):
+        self.game.toggle_afap()
         self.update_info()
     
     def handle_hiscores(self):
