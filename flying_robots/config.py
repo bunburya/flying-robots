@@ -4,7 +4,7 @@ from os.path import isdir, isfile, join, expanduser
 if version_info.minor >= 2:
     from configparser import ConfigParser, ParsingError
 else:
-    from compat import ConfigParser, ParsingError
+    from .compat import ConfigParser, ParsingError
 
 CONF_DIR = expanduser('~/.flying_robots')
 if not isdir(CONF_DIR):
