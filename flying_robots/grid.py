@@ -122,7 +122,7 @@ class GameGrid:
             self.set_tile(coords, new)
         elif incumbent_cls == 'player':
             # Robot collides with player; player dies, game over.
-            raise GameOver('You died!')
+            raise GameOver(False, 'You died!')
         elif incumbent_cls == 'robot':
             self.kill(incumbent)
             self.kill(new)
@@ -142,7 +142,7 @@ class GameGrid:
             self.kill(new)
         elif incumbent_class == 'player':
             # Robot collision with player; player dies, game over.
-            raise GameOver('You died!')
+            raise GameOver(False, 'You died!')
 
 
     def kill(self, enemy):

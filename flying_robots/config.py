@@ -33,7 +33,7 @@ def _get_default_conf(conf, write_to=None):
     x, y, z = 59, 22, 36    # 36-length z-axis gives a total area that is
                             # approximately (area of 2d grid) ** 1.5.
     conf['player'] = {'name': getenv('USER', 'j_doe')}
-    conf['game'] = {'start_level': '1', 'hiscore': 'yes'}
+    conf['game'] = {'start_level': '1', 'hiscore': 'yes', 'max_level': '25'}
     conf['grid'] = {'x': x, 'y': y, 'z': z}
 
     if write_to is not None:

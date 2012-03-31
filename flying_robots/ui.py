@@ -90,6 +90,11 @@ class GameInterface:
             'f':                    self.toggle_afap
             }
     
+    def play_again(self):
+        self.game.start_game()
+        self.update_grid()
+        self.update_info()
+
     def update_grid(self):
         grid = self.game.view_grid()
         for row_num, row in enumerate(grid):
@@ -125,8 +130,8 @@ class GameInterface:
             cmd_key = chr(self.stdscr.getch(y+1, x+1))  # player posn on grid
             try:
                 self.handle_cmd(cmd_key)
-            except GameOver:
-                self.on_game_over()
+            except GameOver as e:
+                self.on_game_over(*e.args)
             except LevelComplete:
                 self.on_level_complete()
             self.stdscr.refresh()
@@ -158,7 +163,7 @@ class GameInterface:
         self.update_grid()
     
     def view_elev(self, elev):
-        if elev in range(self.grid_size[2]):
+        if 0 < elev < self.grid_size[2]:
             self.game.elev = elev
             self.update_grid()
     
@@ -171,9 +176,10 @@ class GameInterface:
     def wait(self):
         self.game.wait()
     
-    def get_yn(self, prompt, default=True):
-        self.grid_win.addstr(0, 0, prompt)
-        ch = chr(self.grid_win.getch(0, 0)).lower()
+    def get_yn(self, prompt, default=True, prompt_coords=[0, 0]):
+        y, x = prompt_coords
+        self.grid_win.addstr(y, x, prompt)
+        ch = chr(self.grid_win.getch(y, x)).lower()
         self.grid_win.border()
         self.grid_win.refresh()
         return self.yn_vals.get(ch, default)
@@ -195,10 +201,17 @@ class GameInterface:
         self.update_grid()
         self.update_info()
 
-    def on_game_over(self):
-        if self.hiscore_game:
-            self.handle_hiscores()
-        self.quit()
+    def on_game_over(self, victory, msg=None):
+        if msg is None:
+            msg = "You win!" if victory else "You lose!"
+        self.grid_win.addstr(0, 0, msg)
+        play_again = self.get_yn('Play again? (y/N)', default=False, prompt_coords=[1, 0])
+        print_hs = not play_again
+        self.handle_hiscores(print_hs)
+        if play_again:
+            self.play_again()
+        else:
+            self.quit()
     
     def prompt_quit(self):
         if self.get_yn('Really quit? (y/N)', False):
@@ -218,9 +231,10 @@ class GameInterface:
         self.game.toggle_afap()
         self.update_info()
     
-    def handle_hiscores(self):
+    def handle_hiscores(self, prnt=False):
         scores, posn = add_score(self.game.name, self.game.score)
-        self.print_hiscores(scores, posn)
+        if prnt:
+            self.print_hiscores(scores, posn)
     
     def print_hiscores(self, scores, posn):
         self.grid_win.clear()

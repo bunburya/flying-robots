@@ -6,22 +6,23 @@ from .config import get_config, calc_enemies
 class Game:
 
     def __init__(self, config):
-        self.level = config['game'].getint('start_level')
-        self.score = 0
-        self.waiting = False
-        self.wait_bonus = 0
+        self.start_level = config['game'].getint('start_level')
+        self.max_level = config['game'].getint('max_level')
         x = config['grid'].getint('x')
         y = config['grid'].getint('y')
         z = config['grid'].getint('z')
         self.name = config['player']['name']
         self.grid_size = [x, y, z]
         self.grid = GameGrid(x, y, z, self)
-        self.grid.populate(calc_enemies(self.level))
-        self.elev = self.grid.player.coords[2]
-        self.sticky_view = False
-        self.move_afap = False
+        self.start_game()
     
     # The following are functions called by the UI to change game state
+
+    def start_game(self):
+        """Reset the game state to allow player to play again."""
+        self.score = 0
+        self.wait_bonus = 0
+        self.play_level(self.start_level)
     
     def teleport_player(self):
         self.grid.player.teleport()
@@ -52,15 +53,20 @@ class Game:
         while True:
             self.move_player(0, 0, 0, False)
     
-    def next_level(self):
+    def play_level(self, level):
+        self.level = level
+        if self.level > self.max_level:
+            raise GameOver(True, 'You win!')
         self.waiting = False
         self.move_afap = False
         self.sticky_view = False
         self.score += self.wait_bonus
         self.wait_bonus = 0
-        self.level += 1
         self.grid.populate(calc_enemies(self.level))
         self.zoom_to_player()
+
+    def next_level(self):
+        self.play_level(self.level+1)
     
     def zoom_to_player(self):
         self.elev = self.grid.player.coords[2]
