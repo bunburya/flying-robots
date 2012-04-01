@@ -3,6 +3,8 @@ from .grid import GameGrid
 from .exceptions import BadTileError, LevelComplete, GameOver
 from .config import get_config, calc_enemies
 
+from debug import log
+
 class Game:
 
     def __init__(self, config):
@@ -54,6 +56,7 @@ class Game:
             self.move_player(0, 0, 0, False)
     
     def play_level(self, level):
+        log('STARTING LEVEL {}'.format(level))
         self.level = level
         if self.level > self.max_level:
             raise GameOver(True, 'You win!')

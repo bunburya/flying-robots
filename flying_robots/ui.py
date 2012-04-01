@@ -206,8 +206,11 @@ class GameInterface:
             msg = "You win!" if victory else "You lose!"
         self.grid_win.addstr(0, 0, msg)
         play_again = self.get_yn('Play again? (y/N)', default=False, prompt_coords=[1, 0])
+        # If this was a hiscore game, store the player's scores.
+        # If player doesn't want to play another game, print the high scores.
+        store_hs = self.hiscore_game
         print_hs = not play_again
-        self.handle_hiscores(print_hs)
+        self.handle_hiscores(store_hs, print_hs)
         if play_again:
             self.play_again()
         else:
@@ -218,7 +221,7 @@ class GameInterface:
             self.quit()
     
     def prompt_goto_elev(self):
-        elev = self.get_num('Goto:', self.game.elev)
+        elev = self.get_num('Goto: ', self.game.elev)
         if 0 < elev <= self.grid_size[2]:
             self.game.zoom_to_elev(elev)
         self.update_grid()
@@ -231,8 +234,11 @@ class GameInterface:
         self.game.toggle_afap()
         self.update_info()
     
-    def handle_hiscores(self, prnt=False):
-        scores, posn = add_score(self.game.name, self.game.score)
+    def handle_hiscores(self, store, prnt):
+        if store:
+            scores, posn = add_score(self.game.name, self.game.score)
+        else:
+            scores, posn = get_scores(), None
         if prnt:
             self.print_hiscores(scores, posn)
     

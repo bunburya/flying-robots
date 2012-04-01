@@ -41,6 +41,10 @@ class BaseMoveableObject(BaseObject):
     
     """A base class representing anything that can move on a grid."""
 
+    def __init__(self, coords, grid):
+        self.is_alive = True
+        BaseObject.__init__(self, coords, grid)
+
     def _move_to(self, new_coords):
         self.grid.clear_tile(self.coords)
         self.coords = new_coords
@@ -64,36 +68,26 @@ class BaseMoveableObject(BaseObject):
             raise BadTileError('Tile not safe.')
         self._move_to(new)
 
-class BaseEnemy(BaseMoveableObject):
-    
-    def __init__(self, coords, grid, speed=1):
-        self.is_alive = True
-        BaseMoveableObject.__init__(self, coords, grid)
-
 class Robot(BaseMoveableObject):
     
     __gameclass__ = 'robot'
     __killscore__ = 10
 
-    def __init__(self, coords, grid, speed=1):
-        self.speed = speed
-        BaseEnemy.__init__(self, coords, grid)
-    
-    def _move_towards_player(self, times=1):
+    def _move_towards_player(self):
         to_move = []
         self_coords = self.coords
         player_coords = self.grid.player.coords
         for s, p in zip(self_coords, player_coords):
             if s < p:
-                to_move.append(times)
+                to_move.append(1)
             elif s > p:
-                to_move.append(-times)
+                to_move.append(-1)
             else:
                 to_move.append(0)
         self._move_by(*to_move)
     
     def move(self):
-        self._move_towards_player(self.speed)
+        self._move_towards_player()
 
 class Player(BaseMoveableObject):
     

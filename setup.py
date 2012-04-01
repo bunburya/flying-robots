@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
         name='flybots',
-        version='0.1.0',
+        version='0.2.0',
         author='Alan Bunbury',
         packages=['', 'flying_robots'],
         scripts=['flybots'],
