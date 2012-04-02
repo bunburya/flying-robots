@@ -163,7 +163,7 @@ class GameInterface:
         self.update_grid()
     
     def view_elev(self, elev):
-        if 0 < elev < self.grid_size[2]:
+        if 0 <= elev < self.grid_size[2]:
             self.game.elev = elev
             self.update_grid()
     
