@@ -29,7 +29,7 @@ class Game:
         self.grid.place_char(self.grid.player)
         self.grid.move_enemies()
         if not self.sticky_view:
-            self.zoom_to_player()
+            self.elev = self.grid.player.coords[2]
     
     def move_player(self, dx, dy, dz, safe_only=True):
         # This isn't absolutely ideal, but it allows for the player to move
@@ -44,7 +44,7 @@ class Game:
             self.grid.place_char(self.grid.player)
             self.grid.move_enemies()
             if not self.sticky_view:
-                self.zoom_to_player()
+                self.elev = self.grid.player.coords[2]
             move_it = afap
         self.move_afap = False
     
@@ -63,16 +63,10 @@ class Game:
         self.score += self.wait_bonus
         self.wait_bonus = 0
         self.grid.populate(calc_enemies(self.level))
-        self.zoom_to_player()
+        self.elev = self.grid.player.coords[2]
 
     def next_level(self):
         self.play_level(self.level+1)
-    
-    def zoom_to_player(self):
-        self.elev = self.grid.player.coords[2]
-    
-    def zoom_to_elev(self, elev):
-        self.elev = elev
     
     def toggle_sticky_view(self):
         self.sticky_view = not self.sticky_view
@@ -85,7 +79,7 @@ class Game:
     
     def view_grid(self):
         return self.grid.view_plan(self.elev)
-    
+
     @property
     def player_coords(self):
         return self.grid.player.coords

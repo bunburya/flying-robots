@@ -1,11 +1,14 @@
 """A basic curses interface for FlyingRobots."""
 
+from sys import stdout, stderr
 import curses
 
-from .game import Game
-from .exceptions import LevelComplete, GameOver
-from .chars import gameclass
-from .hs_handler import get_scores, add_score
+from ..game import Game
+from ..exceptions import LevelComplete, GameOver
+from ..chars import gameclass
+from ..hs_handler import get_scores, add_score
+
+from ._common import charmap, xy_move_keys
 
 def ctrl(ch):
     return chr(ord(ch)-96)
@@ -20,24 +23,8 @@ class GameInterface:
     
     info_win_width = 18
     
-    charmap = {
-        'robot':    '+',
-        'player':   '@',
-        'empty':    ' ',
-        'junk':     '*'
-        }
-    
-    xy_move_keys = {
-        'h':    (-1, 0),
-        'j':    (0, 1),
-        'k':    (0, -1),
-        'l':    (1, 0),
-        'b':    (-1, 1),
-        'n':    (1, 1),
-        'y':    (-1, -1),
-        'u':    (1, -1),
-        'x':    (0, 0)
-        }
+    charmap = charmap
+    xy_move_keys = xy_move_keys
     
     yn_vals = {
         'y':    True,
@@ -50,7 +37,7 @@ class GameInterface:
         gy = config['grid'].getint('y') + 2 # size required for grid
         gx = config['grid'].getint('x') + 2 + self.info_win_width
         if (my < gy) or (mx < gx):
-            self.quit(1, 'flybots needs a screen of at least {}x{}.'.format(gx, gy))
+            self.quit(1, 'flybots needs a screen of at least {}x{}.'.format(gx, gy), stderr)
         self.hiscore_game = config['game'].getboolean('hiscore')
         curses.noecho()
         curses.cbreak()
@@ -83,7 +70,7 @@ class GameInterface:
             chr(curses.KEY_NPAGE):  self.view_next_elev,
             chr(curses.KEY_PPAGE):  self.view_prev_elev,
             't':                    self.teleport,
-            'p':                    self.zoom_to_player,
+            'p':                    self.view_player_elev,
             'w':                    self.wait,
             'g':                    self.prompt_goto_elev,
             's':                    self.toggle_sticky_view,
@@ -158,10 +145,6 @@ class GameInterface:
         self.game.teleport_player()
         self.update_grid()
     
-    def zoom_to_player(self):
-        self.game.zoom_to_player()
-        self.update_grid()
-    
     def view_elev(self, elev):
         if 0 <= elev < self.grid_size[2]:
             self.game.elev = elev
@@ -173,6 +156,9 @@ class GameInterface:
     def view_prev_elev(self):
         self.view_elev(self.game.elev+1)
     
+    def view_player_elev(self):
+        self.view_elev(self.game.player_coords[2])
+
     def wait(self):
         self.game.wait()
     
@@ -222,9 +208,7 @@ class GameInterface:
     
     def prompt_goto_elev(self):
         elev = self.get_num('Goto: ', self.game.elev)
-        if 0 < elev <= self.grid_size[2]:
-            self.game.zoom_to_elev(elev)
-        self.update_grid()
+        self.view_elev(elev)
     
     def toggle_sticky_view(self):
         self.game.toggle_sticky_view()
@@ -234,12 +218,12 @@ class GameInterface:
         self.game.toggle_afap()
         self.update_info()
     
-    def handle_hiscores(self, store, prnt):
+    def handle_hiscores(self, store, _print):
         if store:
             scores, posn = add_score(self.game.name, self.game.score)
         else:
             scores, posn = get_scores(), None
-        if prnt:
+        if _print:
             self.print_hiscores(scores, posn)
     
     def print_hiscores(self, scores, posn):
@@ -256,11 +240,14 @@ class GameInterface:
         self.grid_win.refresh()
         self.stdscr.getch(0, 0) # Wait until player hits a key before quitting.
 
-    def quit(self, status=0, msg=None):
+    def quit(self, status=0, msg=None, _file=stdout):
         self.stdscr.keypad(0)
         curses.nocbreak()
         curses.echo()
         curses.endwin()
         if msg is not None:
-            print(msg)
+            print(msg, file=_file)
         quit(status)
+
+def start_interface(config):
+    curses.wrapper(lambda s: GameInterface(s, config))

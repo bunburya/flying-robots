@@ -1,4 +1,4 @@
-from sys import version_info
+from sys import version_info, stderr
 from os import mkdir, getenv
 from os.path import isdir, isfile, join, expanduser
 if version_info.minor >= 2:
@@ -9,6 +9,8 @@ else:
 CONF_DIR = expanduser('~/.flying_robots')
 if not isdir(CONF_DIR):
     mkdir(CONF_DIR)
+
+DEFAULT_UI = 'tkinter'
     
 def get_conf_filepath(filename):
     """Takes a filename as an argument, returns the full path to that file,
@@ -59,7 +61,8 @@ def validate_conf(conf):
         game.getboolean('hiscore')
     except ValueError as e:
         bad_val = e.args[0].split()[-1]
-        print('Invalid configuration option: {}'.format(bad_val))
+        print('Invalid configuration option: {}'.format(bad_val),
+                file=sys.stderr)
         quit(1)
 
 def apply_opts_to_conf(conf, opts, optmap):
