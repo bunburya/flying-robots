@@ -13,7 +13,7 @@ setup(
         name=short_name,
         version=version,
         author=author,
-        packages=['', 'flying_robots'],
+        packages=['', 'flying_robots', 'flying_robots.ui'],
         scripts=['flybots'],
         url=homepage_url,
         description=description,
