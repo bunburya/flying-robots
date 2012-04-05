@@ -281,7 +281,6 @@ class GameInterface(tkinter.Frame):
             self.print_hiscores(scores, posn)
 
     def print_hiscores(self, scores, posn):
-        # Some kind of messagebox here
         to_print = []
         for _posn, (name, score) in enumerate(scores):
             _posn += 1
@@ -289,8 +288,7 @@ class GameInterface(tkinter.Frame):
                 to_print.append('*{}\t{}\t{}'.format(_posn, name, score))
             else:
                 to_print.append('{}\t{}\t{}'.format(_posn, name, score))
-        if showinfo(title='High scores', message='\n'.join(to_print)) == 'ok':
-            quit()
+        showinfo(title='High scores', message='\n'.join(to_print))
 
     def get_yn(self, msg):
         return self.yn_vals[askquestion(message=msg)]
