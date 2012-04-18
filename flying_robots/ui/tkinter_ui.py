@@ -26,6 +26,7 @@ class GameInterface(tkinter.Frame):
     def __init__(self, config, master=None):
         tkinter.Frame.__init__(self, master)
         self.hiscore_game = config['game'].getboolean('hiscore')
+        self.game_over = False
         self.game = Game(config)
         self.grid_size = self.game.grid_size
         self.grid()
@@ -46,7 +47,7 @@ class GameInterface(tkinter.Frame):
         self.grid_var = tkinter.StringVar()
         grid_widget = tkinter.Label(
                 self,
-                font=("DejaVu Sans Mono", "10"),
+                font=("Courier", "10"),
                 relief=tkinter.RAISED,
                 width=x,
                 height=y,
@@ -239,6 +240,8 @@ class GameInterface(tkinter.Frame):
         self.update_info()
 
     def handle_keypress(self, event):
+        if self.game_over:
+            return
         key = event.keysym
         try:
             if key.lower() in self.xy_move_keys:
@@ -256,6 +259,7 @@ class GameInterface(tkinter.Frame):
         self.update_info()
 
     def on_game_over(self, victory, msg=None):
+        self.game_over = True
         if msg is None:
             msg = 'You win!' if victory else 'You lose!'
         play_again = self.get_yn('{}\nPlay again?'.format(msg))
@@ -268,6 +272,7 @@ class GameInterface(tkinter.Frame):
             self.quit()
 
     def play_again(self):
+        self.game_over = False
         self.game.start_game()
         self.update_grid()
         self.update_info()
