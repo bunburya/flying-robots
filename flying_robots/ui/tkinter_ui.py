@@ -12,7 +12,6 @@ from ..exceptions import LevelComplete, GameOver
 from ..chars import gameclass
 from ..hs_handler import get_scores, add_score
 from ..metadata import long_name, version
-from ..config import GFX_DIR
 
 from ._common import charmap, xy_move_keys
 

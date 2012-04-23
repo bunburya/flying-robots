@@ -43,6 +43,7 @@ if options.scores_only:
     print_scores()
 
 ui = options.ui or DEFAULT_UI
+"""
 try:
     if ui == 'tkinter':
         from flying_robots.ui.tkinter_ui import start_interface
@@ -56,6 +57,8 @@ except ImportError:
             ''.format(ui),
             file=stderr)
     quit(1)
+"""
+from flying_robots.ui.tkinter_ui import start_interface
 
 conf = get_config(options.conf_file)
 
