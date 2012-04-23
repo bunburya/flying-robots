@@ -6,19 +6,13 @@ if version_info.minor >= 2:
 else:
     from .compat import ConfigParser, ParsingError
 
-#from .metadata import short_name
-short_name = 'flybots'
+from .metadata import short_name
 
 CONF_DIR = expanduser('~/.flying_robots')
 if not isdir(CONF_DIR):
     mkdir(CONF_DIR)
 
 DEFAULT_UI = 'tkinter'
-
-if name == 'posix':
-    GFX_DIR = '/usr/share/{}/gfx'.format(short_name)
-elif name == 'nt':
-    GFX_DIR = 'C:\\Program Files\\{}\\gfx'.format(short_name)
 
 def get_conf_filepath(filename):
     """Takes a filename as an argument, returns the full path to that file,
