@@ -1,5 +1,7 @@
 TODO ASAP:
 
+- Find a sensible place to store gfx files.
+
 - Man page outlining options and controls.
 
 - Proper high scores system, similar to bsd-robots or nethack.

@@ -14,6 +14,7 @@ setup(
         version=version,
         author=author,
         packages=['', 'flying_robots', 'flying_robots.ui'],
+        package_data={'flying_robots.ui': ['gfx/*.gif']},
         scripts=['flybots'],
         url=homepage_url,
         description=description,

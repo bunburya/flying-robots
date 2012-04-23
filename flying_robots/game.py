@@ -81,6 +81,10 @@ class Game:
         return self.grid.view_plan(self.elev)
 
     @property
+    def objects(self):
+        return self.grid.objects
+
+    @property
     def player_coords(self):
         return self.grid.player.coords
     

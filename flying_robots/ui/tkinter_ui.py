@@ -1,5 +1,7 @@
 """A graphical user interface for FlyingRobots, using Tkinter."""
 
+from os.path import join, dirname
+
 import tkinter
 from tkinter import N, W, E, S
 from tkinter.messagebox import askquestion, showinfo
@@ -10,12 +12,23 @@ from ..exceptions import LevelComplete, GameOver
 from ..chars import gameclass
 from ..hs_handler import get_scores, add_score
 from ..metadata import long_name, version
+from ..config import GFX_DIR
 
 from ._common import charmap, xy_move_keys
 
+GFX_DIR = join(dirname(__file__), 'gfx')
+
+img_w, img_h = 10, 20
+
+charmap = {
+        'player':   join(GFX_DIR, 'player.gif'),
+        'robot':    join(GFX_DIR, 'robot.gif'),
+        'junk':     join(GFX_DIR, 'junk.gif')
+        }
+
+
 class GameInterface(tkinter.Frame):
     
-    charmap = charmap
     xy_move_keys = xy_move_keys
 
     yn_vals = {
@@ -26,9 +39,14 @@ class GameInterface(tkinter.Frame):
     def __init__(self, config, master=None):
         tkinter.Frame.__init__(self, master)
         self.hiscore_game = config['game'].getboolean('hiscore')
+        self.gen_charmap()
         self.game_over = False
         self.game = Game(config)
         self.grid_size = self.game.grid_size
+        w, h, _ = self.grid_size
+        self.grid_imgs = set()
+        self.grid_widget_h = h * img_h
+        self.grid_widget_w = w * img_w
         self.grid()
         self.setup_nonmove_cmds()
         self.bind_all('<Any-KeyPress>', self.handle_keypress)
@@ -36,24 +54,24 @@ class GameInterface(tkinter.Frame):
         self.update_grid()
         self.update_info()
 
+    def gen_charmap(self):
+        _charmap = {}
+        for char in charmap:
+            _charmap[char] = tkinter.PhotoImage(file=charmap[char])
+        self.charmap = _charmap
+
     def setup_widgets(self):
 
         # TODO:
         # - Insert blank Labels between lines to space out the info.
-
         x, y, z = self.grid_size
 
-        # A Label to display the game grid
-        self.grid_var = tkinter.StringVar()
-        grid_widget = tkinter.Label(
+        self.grid_widget = tkinter.Canvas(
                 self,
-                font=("Courier", "10"),
-                relief=tkinter.RAISED,
-                width=x,
-                height=y,
-                textvariable=self.grid_var
+                height=self.grid_widget_h,
+                width=self.grid_widget_w
                 )
-        
+
         # A Frame to hold all the non-grid widgets
         info_frame = tkinter.Frame(self)
 
@@ -162,7 +180,7 @@ class GameInterface(tkinter.Frame):
         afap_chbox.grid(row=1, sticky=N+W)
 
         # Now call .grid() on each widget to paint it to the screen
-        grid_widget.grid(sticky=N+E+S+W)
+        self.grid_widget.grid(sticky=N+E+S+W)
         coords_frame.grid(sticky=N+W)
         elev_frame.grid(sticky=N+W)
         level_frame.grid(sticky=N+W)
@@ -174,11 +192,18 @@ class GameInterface(tkinter.Frame):
 
     def update_grid(self):
         obj_grid = self.game.view_grid()
-        char_grid = []
-        for row in obj_grid:
-            line = ''.join([self.charmap.get(gameclass(ch), ' ') for ch in row])
-            char_grid.append(line)
-        self.grid_var.set('\n'.join(char_grid))
+        self.grid_widget.delete(tkinter.ALL)
+        for obj in self.game.objects:
+            x, y, z = obj.coords
+            if not z == self.game.elev:
+                continue
+            x_pos = x * img_w
+            y_pos = y * img_h
+            self.grid_imgs.add(
+                    self.grid_widget.create_image(x_pos, y_pos, 
+                        image=self.charmap[gameclass(obj)],
+                        anchor=tkinter.NW)
+                    )
 
     def view_elev(self, elev=None):
         if elev is None:
