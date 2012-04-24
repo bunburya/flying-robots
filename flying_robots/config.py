@@ -1,5 +1,5 @@
 from sys import version_info, stderr
-from os import mkdir, getenv, name
+from os import mkdir, getenv, name as os_name
 from os.path import isdir, isfile, join, expanduser
 if version_info.minor >= 2:
     from configparser import ConfigParser, ParsingError
@@ -8,7 +8,17 @@ else:
 
 from .metadata import short_name
 
-CONF_DIR = expanduser('~/.flying_robots')
+if os_name == 'nt':
+    CONF_DIR = join(getenv('AppData'), short_name)
+elif os_name == 'posix':
+    CONF_DIR = join(
+            getenv('XDG_CONFIG_HOME', expanduser('~/.config')),
+            short_name
+            )
+else:
+    print('Sorry, your operating system is not yet supported.', file=stderr)
+    quit(1)
+
 if not isdir(CONF_DIR):
     mkdir(CONF_DIR)
 

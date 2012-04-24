@@ -19,6 +19,5 @@ setup(
         url=homepage_url,
         description=description,
         download_url=download_url,
-        platforms=['unix', 'posix', 'linux', 'bsd'],
         license=license
         )
