@@ -57,27 +57,21 @@ class ControlView(InfoView):
 
 class AboutView(InfoView):
 
+    about_str = '\n'.join([
+        '{} ({}) v{}'.format(long_name, short_name, version),
+        description,
+        'Created by {}.'.format(author),
+        'Published under a {} license.'.format(license_name),
+        homepage_url
+        ])
+                
+
     def body(self, master):
-        tkinter.Label(
+        about_msg = tkinter.Label(
                 master,
-                text='{} ({}) v{}'.format(long_name, short_name, version)
-                ).grid()
-        tkinter.Label(
-                master,
-                text=description
-                ).grid()
-        tkinter.Label(
-                master,
-                text='Created by {}.'.format(author)
-                ).grid()
-        tkinter.Label(
-                master,
-                text='Published under a {} license.'.format(license_name)
-                ).grid()
-        tkinter.Label(
-                master,
-                text=homepage_url
-                ).grid()
+                text=self.about_str
+                )
+        about_msg.grid()
         return self.ok_button(master)
 
 
@@ -105,6 +99,8 @@ class HighScoreView(InfoView):
 class LicenseView(InfoView):
 
     def body(self, master):
+        # Docs say that Message is for multi-line text, but Label
+        # gives us the line wrapping we need here.
         license_msg = tkinter.Label(
             master,
             text=license,
