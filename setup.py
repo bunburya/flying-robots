@@ -6,7 +6,7 @@ from flying_robots.metadata import (
         homepage_url,
         description,
         download_url,
-        license
+        license_name
         )
 
 setup(
@@ -19,5 +19,5 @@ setup(
         url=homepage_url,
         description=description,
         download_url=download_url,
-        license=license
+        license=license_name
         )

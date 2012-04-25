@@ -5,25 +5,113 @@ from os.path import join, dirname
 import tkinter
 from tkinter import N, W, E, S
 from tkinter.messagebox import askquestion, showinfo
-from tkinter.simpledialog import askinteger
+from tkinter.simpledialog import askinteger, Dialog
+from tkinter.font import Font
 
 from ..game import Game
 from ..exceptions import LevelComplete, GameOver
 from ..chars import gameclass
 from ..hs_handler import get_scores, add_score
-from ..metadata import long_name, version
+from ..metadata import (short_name, long_name, description, version,
+        controls, license_name, license, author, homepage_url)
 
 from ._common import charmap, xy_move_keys
 
 GFX_DIR = join(dirname(__file__), 'gfx')
 
 img_w, img_h = 10, 20
+borderwidth = 2
 
 charmap = {
         'player':   join(GFX_DIR, 'player.gif'),
         'robot':    join(GFX_DIR, 'robot.gif'),
         'junk':     join(GFX_DIR, 'junk.gif')
         }
+
+
+class InfoView(Dialog):
+    """Base class for dialog boxes used by the GameInterface."""
+
+    def ok_button(self, master):
+        button = tkinter.Button(
+                master,
+                text='OK',
+                command=self.destroy
+                )
+        button.grid()
+        return button
+
+    def buttonbox(self):
+        pass
+
+class ControlView(InfoView):
+
+    def body(self, master):
+        control_msg = tkinter.Message(
+                master,
+                text=controls,
+                font=('Courier', 10)
+                )
+        control_msg.grid(row=0, column=0)
+        return self.ok_button(master)
+
+class AboutView(InfoView):
+
+    def body(self, master):
+        tkinter.Label(
+                master,
+                text='{} ({}) v{}'.format(long_name, short_name, version)
+                ).grid()
+        tkinter.Label(
+                master,
+                text=description
+                ).grid()
+        tkinter.Label(
+                master,
+                text='Created by {}.'.format(author)
+                ).grid()
+        tkinter.Label(
+                master,
+                text='Published under a {} license.'.format(license_name)
+                ).grid()
+        tkinter.Label(
+                master,
+                text=homepage_url
+                ).grid()
+        return self.ok_button(master)
+
+
+class HighScoreView(InfoView):
+
+    def __init__(self, parent, title=None, scores=None, posn=None):
+        if scores is None:
+            scores = get_scores()
+        self.scores = scores
+        self.posn = posn
+        InfoView.__init__(self, parent, title)
+
+    def body(self, master):
+        tkinter.Label(master, text='#').grid(row=0, column=0)
+        tkinter.Label(master, text='NAME').grid(row=0, column=1)
+        tkinter.Label(master, text='SCORE').grid(row=0, column=2)
+        for _posn, (name, score) in enumerate(self.scores):
+            _posn += 1
+            rel = tkinter.RAISED if _posn == self.posn else tkinter.FLAT
+            tkinter.Label(master, text=_posn, relief=rel).grid(row=_posn, column=0)
+            tkinter.Label(master, text=name).grid(row=_posn, column=1)
+            tkinter.Label(master, text=score).grid(row=_posn, column=2)
+        return self.ok_button(master)
+
+class LicenseView(InfoView):
+
+    def body(self, master):
+        license_msg = tkinter.Label(
+            master,
+            text=license,
+            justify=tkinter.LEFT
+            )
+        license_msg.grid()
+        return self.ok_button(master)
 
 
 class GameInterface(tkinter.Frame):
@@ -44,6 +132,7 @@ class GameInterface(tkinter.Frame):
         self.grid_size = self.game.grid_size
         w, h, _ = self.grid_size
         self.grid_imgs = set()
+        self.bw = borderwidth
         self.grid_widget_h = h * img_h
         self.grid_widget_w = w * img_w
         self.grid()
@@ -65,11 +154,17 @@ class GameInterface(tkinter.Frame):
         # - Insert blank Labels between lines to space out the info.
         x, y, z = self.grid_size
 
+        # Canvas widget to display the game grid
         self.grid_widget = tkinter.Canvas(
                 self,
                 height=self.grid_widget_h,
-                width=self.grid_widget_w
+                width=self.grid_widget_w,
+                relief=tkinter.GROOVE,
+                bd=2
                 )
+
+        # A Frame to hold the menu bar at the top
+        topmenu_frame = self.create_topmenu()
 
         # A Frame to hold all the non-grid widgets
         info_frame = tkinter.Frame(self)
@@ -179,7 +274,8 @@ class GameInterface(tkinter.Frame):
         afap_chbox.grid(row=1, sticky=N+W)
 
         # Now call .grid() on each widget to paint it to the screen
-        self.grid_widget.grid(sticky=N+E+S+W)
+        topmenu_frame.grid(sticky=E+W)
+        self.grid_widget.grid(row=1, column=0, sticky=N+E+S+W)
         coords_frame.grid(sticky=N+W)
         elev_frame.grid(sticky=N+W)
         level_frame.grid(sticky=N+W)
@@ -187,7 +283,59 @@ class GameInterface(tkinter.Frame):
         score_frame.grid(sticky=N+W)
         modes_frame.grid(sticky=N+W)
 
-        info_frame.grid(row=0, column=1, sticky=N+E+S+W)
+        info_frame.grid(row=1, column=1, sticky=N+E+S+W)
+
+    def create_topmenu(self):
+        """Creates a Frame for the menu bar at the top of the app,
+        populates it and returns it.
+        """
+        topmenu_frame = tkinter.Frame(self)
+
+        # File menu
+        gamebutton = tkinter.Menubutton(topmenu_frame, text='Game')
+        gamemenu = tkinter.Menu(gamebutton, tearoff=0)
+        gamebutton['menu'] = gamemenu
+        gamemenu.add_command(
+                label='New game',
+                command=self.play_again
+                )
+        gamemenu.add_command(
+                label='Quit',
+                command=self.prompt_quit
+                )
+
+        # View menu
+        viewbutton = tkinter.Menubutton(topmenu_frame, text='View')
+        viewmenu = tkinter.Menu(viewbutton, tearoff=0)
+        viewbutton['menu'] = viewmenu
+        viewmenu.add_command(
+                label='High scores',
+                command=self.show_hiscores
+                )
+        viewmenu.add_command(
+                label='License',
+                command=self.show_license
+                )
+
+        # Help menu
+        helpbutton = tkinter.Menubutton(topmenu_frame, text='Help')
+        helpmenu = tkinter.Menu(helpbutton, tearoff=0)
+        helpbutton['menu'] = helpmenu
+        helpmenu.add_command(
+                label='Controls',
+                command=self.show_controls
+                )
+        helpmenu.add_command(
+                label='About',
+                command=self.show_about
+                )
+        
+        # Call .grid() on all buttons
+        gamebutton.grid(row=0, column=0)
+        viewbutton.grid(row=0, column=1)
+        helpbutton.grid(row=0, column=2)
+        return topmenu_frame
+
 
     def update_grid(self):
         obj_grid = self.game.view_grid()
@@ -196,8 +344,8 @@ class GameInterface(tkinter.Frame):
             x, y, z = obj.coords
             if not z == self.game.elev:
                 continue
-            x_pos = x * img_w
-            y_pos = y * img_h
+            x_pos = (x * img_w) + self.bw
+            y_pos = (y * img_h) + self.bw
             self.grid_imgs.add(
                     self.grid_widget.create_image(x_pos, y_pos, 
                         image=self.charmap[gameclass(obj)],
@@ -307,17 +455,19 @@ class GameInterface(tkinter.Frame):
         else:
             scores, posn = get_scores(), None
         if _print:
-            self.print_hiscores(scores, posn)
+            self.show_hiscores(scores, posn)
 
-    def print_hiscores(self, scores, posn):
-        to_print = []
-        for _posn, (name, score) in enumerate(scores):
-            _posn += 1
-            if _posn == posn:
-                to_print.append('*{}\t{}\t{}'.format(_posn, name, score))
-            else:
-                to_print.append('{}\t{}\t{}'.format(_posn, name, score))
-        showinfo(title='High scores', message='\n'.join(to_print))
+    def show_hiscores(self, scores=None, posn=None):
+        HighScoreView(self, 'High scores', scores, posn)
+
+    def show_about(self):
+        AboutView(self, 'About')
+
+    def show_license(self):
+        LicenseView(self, 'License')
+    
+    def show_controls(self):
+        ControlView(self, 'Controls')
 
     def get_yn(self, msg):
         return self.yn_vals[askquestion(message=msg)]
