@@ -1,5 +1,16 @@
 TODO ASAP:
 
+- Packaging for various operating systems.
+
+  - .deb
+
+  - .rpm
+
+  - Windows (this is complicated; cx_freeze doesn't work; consider using
+    py2exe or distutils.command.bdist_msi)
+
+  - Mac
+
 - Man page outlining options and controls.
 
 - Proper high scores system, similar to bsd-robots or nethack.
