@@ -11,8 +11,11 @@ from .metadata import short_name
 if os_name == 'nt':
     CONF_DIR = join(getenv('AppData'), short_name)
 elif os_name == 'posix':
+    dotconf = expanduser('~/.config')
+    if not isdir(dotconf):
+        mkdir(dotconf)
     CONF_DIR = join(
-            getenv('XDG_CONFIG_HOME', expanduser('~/.config')),
+            getenv('XDG_CONFIG_HOME', dotconf),
             short_name
             )
 else:
