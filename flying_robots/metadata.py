@@ -1,6 +1,6 @@
 long_name = 'FlyingRobots'
 short_name = 'flybots'
-version = '0.5.0'
+version = '0.5.1'
 description = 'A three-dimensional clone of the classic bsd-robots game.'
 author = 'Alan Bunbury'
 homepage_url = 'http://bunburya.github.com/FlyingRobots'
