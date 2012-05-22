@@ -26,6 +26,9 @@ Holding ctrl while pressing any of the above also moves down the z-axis.
 {goto} = Prompt for number of level on z-axis and view that level, without moving.
 """
 
+def _invert_dict(d):
+    return dict(zip(d.values(), d.keys()))
+
 class ControlSet:
     
     """A class which represents a set of game controls and contains associated
@@ -53,7 +56,7 @@ class ControlSet:
         
     """
     
-    control_help = control_help
+    _control_help = control_help
     
     xy_move_keys = {
         'w':    (-1, 0),
@@ -79,10 +82,12 @@ class ControlSet:
         'quit'
         }
         
-    def __init__(self, special_keys):
+    def __init__(self, keys):
                 
-        self.sym_to_key = special_keys
-        self.key_to_sym = dict(zip(special_keys.values(), special_keys.keys()))
+        self.sym_to_key = keys
+        self.key_to_sym = _invert_dict(keys)
+        self.add_move_keys(self.move_keys)
+        self.add_special_keys(self.special_keys)
     
     def _conv_keymap(self, keymap):
         """Takes a dict, converts symbols ("pgup" etc) to their corresponding
@@ -95,12 +100,55 @@ class ControlSet:
         return _keymap
     
     def add_move_keys(self, keymap):
-        self.move_syms = keymap
-        self.move_keys = self._conv_keymap(keymap)
+        """Takes a dict mapping keys (symbols as apt) to movement commands"""
+        self.move_syms_to_cmds = keymap
+        self.move_cmds_to_syms = _invert_dict(keymap)
+        keys = self._conv_keymap(keymap)
+        self.move_keys_to_cmds = keys
+        self.move_cmds_to_keys = _invert_dict(keys)
     
     def add_special_keys(self, keymap):
-        self.special_syms = keymap
-        self.special_keys = self._conv_keymap(keymap)
+        """Takes a dict mapping keys (symbols as apt) to special commands"""
+        self.special_syms_to_cmds = keymap
+        self.special_cmds_to_syms = _invert_dict(keymap)
+        keys = self._conv_keymap(keymap)
+        self.special_keys_to_cmds = keys
+        self.special_cmds_to_keys = _invert_dict(keys)
     
     def get_move_xy(self, key):
         return self.xy_move_keys[self.move_keys[key]]
+
+    def is_move_key(self, key):
+        return key in self.move_keys_to_cmds
+    
+    @property
+    def control_help(self):
+        all_ctrls = {}
+        all_ctrls.update(self.move_cmds_to_syms)
+        all_ctrls.update(self.special_cmds_to_syms)
+        return self._control_help.format(all_ctrls)
+
+class ClassicControls(ControlSet):
+
+    move_keys = {
+        'k':    'n',
+        'h':    'w',
+        'l':    'e',
+        'j':    's',
+        'y':    'nw',
+        'u':    'ne',
+        'b':    'sw',
+        'n':    'se'
+        }
+
+    special_keys = {
+        't':    'tele',
+        'w':    'wait',
+        'pgup': 'next',
+        'pgdn': 'prev',
+        'g':    'goto',
+        'p':    'player',
+        's':    'sticky',
+        'f':    'afap',
+        'q':    'quit'
+        }

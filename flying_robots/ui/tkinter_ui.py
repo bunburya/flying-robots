@@ -16,6 +16,7 @@ from ..metadata import (short_name, long_name, description, version,
         controls, license_name, license, author, homepage_url)
 
 from ._common import charmap, xy_move_keys
+from _controls import ClassicControls
 
 GFX_DIR = join(dirname(__file__), 'gfx')
 
@@ -27,6 +28,12 @@ charmap = {
         'robot':    join(GFX_DIR, 'robot.gif'),
         'junk':     join(GFX_DIR, 'junk.gif')
         }
+
+special_keymap = {
+        'pgup': 'Prior',
+        'pgdn': 'Next'
+        }
+
 
 
 class InfoView(Dialog):
