@@ -3,7 +3,7 @@ control_help = """CONTROLS
 {nw} {n} {ne}
  \|/
 {w}-{x}-{e}
- /|\
+ /|\\
 {sw} {s} {se}
 
 Holding shift while pressing any of the above also moves up the z-axis.
@@ -20,8 +20,8 @@ Holding ctrl while pressing any of the above also moves down the z-axis.
     This mode is unset after each turn.
 {quit} = Quit.
 
-{pgup} = View next level on z-axis, without moving.
-{pgup} = View previous level on z-axis, without moving.
+{next} = View next level on z-axis, without moving.
+{prev} = View previous level on z-axis, without moving.
 {player} = View level on z-axis on which player is placed, without moving.
 {goto} = Prompt for number of level on z-axis and view that level, without moving.
 """
@@ -126,7 +126,7 @@ class ControlSet:
         all_ctrls = {}
         all_ctrls.update(self.move_cmds_to_syms)
         all_ctrls.update(self.special_cmds_to_syms)
-        return self._control_help.format(all_ctrls)
+        return self._control_help.format(**all_ctrls)
 
 class ClassicControls(ControlSet):
 
@@ -138,7 +138,8 @@ class ClassicControls(ControlSet):
         'y':    'nw',
         'u':    'ne',
         'b':    'sw',
-        'n':    'se'
+        'n':    'se',
+        'x':    'x'
         }
 
     special_keys = {

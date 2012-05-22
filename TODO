@@ -1,5 +1,14 @@
 TODO ASAP:
 
+- Scalable system for supporting and configuring multiple control sets.
+
+  - The ControlSet class is mostly implemeted; now work on having it play
+    nice with each interface.
+
+  - Changing controls in-game.
+
+  - Saving and loading control sets.
+
 - Packaging for various operating systems.
 
   - .deb
