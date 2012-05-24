@@ -58,7 +58,7 @@ class ControlSet:
     
     _control_help = control_help
     
-    xy_move_keys = {
+    move_cmds_to_xy = {
         'w':    (-1, 0),
         's':    (0, 1),
         'n':    (0, -1),
@@ -86,8 +86,6 @@ class ControlSet:
                 
         self.sym_to_key = keys
         self.key_to_sym = _invert_dict(keys)
-        self.add_move_keys(self.move_keys)
-        self.add_special_keys(self.special_keys)
     
     def _conv_keymap(self, keymap):
         """Takes a dict, converts symbols ("pgup" etc) to their corresponding
@@ -114,12 +112,22 @@ class ControlSet:
         keys = self._conv_keymap(keymap)
         self.special_keys_to_cmds = keys
         self.special_cmds_to_keys = _invert_dict(keys)
-    
-    def get_move_xy(self, key):
-        return self.xy_move_keys[self.move_keys[key]]
+
+    def get_special_cmd(self, key):
+        return self.special_keys_to_cmds[key]
+
+    def get_move_cmd(self, key):
+        return self.move_keys_to_cmds[key]
+
+    def get_move_xyz(self, key, z):
+        x, y = self.move_cmds_to_xy[self.move_keys_to_cmds[key]]
+        return x, y, z
 
     def is_move_key(self, key):
         return key in self.move_keys_to_cmds
+
+    def is_special_key(self, key):
+        return key in self.special_keys_to_cmds
     
     @property
     def control_help(self):
@@ -128,9 +136,8 @@ class ControlSet:
         all_ctrls.update(self.special_cmds_to_syms)
         return self._control_help.format(**all_ctrls)
 
-class ClassicControls(ControlSet):
 
-    move_keys = {
+classic_move_keys = {
         'k':    'n',
         'h':    'w',
         'l':    'e',
@@ -142,7 +149,7 @@ class ClassicControls(ControlSet):
         'x':    'x'
         }
 
-    special_keys = {
+classic_special_keys = {
         't':    'tele',
         'w':    'wait',
         'pgup': 'next',
@@ -153,3 +160,39 @@ class ClassicControls(ControlSet):
         'f':    'afap',
         'q':    'quit'
         }
+
+def get_classic_ctrls(keymap):
+    ctrls = ControlSet(keymap)
+    ctrls.add_move_keys(classic_move_keys)
+    ctrls.add_special_keys(classic_special_keys)
+    return ctrls
+
+new_move_keys = {
+        'w':    'n',
+        'a':    'w',
+        'd':    'e',
+        'x':    's',
+        'q':    'nw',
+        'e':    'ne',
+        'z':    'sw',
+        'c':    'se',
+        's':    'x'
+        }
+
+new_special_keys = {
+        't':    'tele',
+        'o':    'wait',
+        'pgup': 'next',
+        'pgdn': 'prev',
+        'g':    'goto',
+        'p':    'player',
+        'v':    'sticky',
+        'f':    'afap',
+        'esc':  'quit'
+        }
+
+def get_new_ctrls(keymap):
+    ctrls = ControlSet(keymap)
+    ctrls.add_move_keys(new_move_keys)
+    ctrls.add_special_keys(new_special_keys)
+    return ctrls

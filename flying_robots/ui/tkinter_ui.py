@@ -16,7 +16,7 @@ from ..metadata import (short_name, long_name, description, version,
         controls, license_name, license, author, homepage_url)
 
 from ._common import charmap, xy_move_keys
-from _controls import ClassicControls
+from ._controls import get_classic_ctrls, get_new_ctrls
 
 GFX_DIR = join(dirname(__file__), 'gfx')
 
@@ -31,9 +31,9 @@ charmap = {
 
 special_keymap = {
         'pgup': 'Prior',
-        'pgdn': 'Next'
+        'pgdn': 'Next',
+        'esc':  'Escape'
         }
-
 
 
 class InfoView(Dialog):
@@ -119,8 +119,6 @@ class LicenseView(InfoView):
 
 class GameInterface(tkinter.Frame):
     
-    xy_move_keys = xy_move_keys
-
     yn_vals = {
             'yes':  True,
             'no':   False
@@ -128,6 +126,7 @@ class GameInterface(tkinter.Frame):
     
     def __init__(self, config, master=None):
         tkinter.Frame.__init__(self, master)
+        self.controls = get_new_ctrls(special_keymap)
         self.hiscore_game = config['game'].getboolean('hiscore')
         self.gen_charmap()
         self.game_over = False
@@ -383,29 +382,30 @@ class GameInterface(tkinter.Frame):
 
     def setup_nonmove_cmds(self):
         self.nonmove_cmds = {
-                'q':        self.prompt_quit,
-                'Prior':    self.view_next_elev,
-                'Next':     self.view_prev_elev,
-                't':        self.teleport,
-                'p':        self.view_player_elev,
-                'w':        self.wait,
-                'g':        self.prompt_goto_elev,
-                's':        self.toggle_sticky,
-                'f':        self.toggle_afap
+                'quit':     self.prompt_quit,
+                'next':     self.view_next_elev,
+                'prev':     self.view_prev_elev,
+                'tele':     self.teleport,
+                'player':   self.view_player_elev,
+                'wait':     self.wait,
+                'goto':     self.prompt_goto_elev,
+                'sticky':   self.toggle_sticky,
+                'afap':     self.toggle_afap
                 }
 
     def move(self, event):
         """Takes an Event instance which represents a movement key,
         and processes movement accordingly.
         """
-        x, y = self.xy_move_keys[event.keysym.lower()]
         if (event.state & 1) or (event.state & 2):  # Shift or caps lock
             z = 1
         elif event.state & 4:   # Ctrl key
             z = -1
         else:
             z = 0
-        self.game.move_player(x, y, z)
+        self.game.move_player(
+                *self.controls.get_move_xyz(event.keysym.lower(), z)
+                )
         self.update_grid()
         self.update_info()
 
@@ -419,10 +419,10 @@ class GameInterface(tkinter.Frame):
             return
         key = event.keysym
         try:
-            if key.lower() in self.xy_move_keys:
+            if self.controls.is_move_key(key):
                 self.move(event)
-            elif key in self.nonmove_cmds:
-                self.nonmove_cmds[key]()
+            elif self.controls.is_special_key(key):
+                self.nonmove_cmds[self.controls.get_special_cmd(key)]()
         except LevelComplete:
             self.on_level_complete()
         except GameOver as e:
