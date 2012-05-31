@@ -58,7 +58,6 @@ class ControlView(InfoView):
         InfoView.__init__(self, parent, title)
 
     def body(self, master):
-        print(master.children)
         control_msg = tkinter.Message(
                 master,
                 text=self.ctrl_text,
