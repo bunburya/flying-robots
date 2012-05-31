@@ -2,8 +2,7 @@ TODO ASAP:
 
 - Scalable system for supporting and configuring multiple control sets.
 
-  - The ControlSet class is mostly implemeted; now work on having it play
-    nice with each interface.
+  - Clean up the way each interface interacts with ControlSet.
 
   - Changing controls in-game.
 

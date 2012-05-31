@@ -82,10 +82,10 @@ class ControlSet:
         'quit'
         }
         
-    def __init__(self, keys):
-                
-        self.sym_to_key = keys
-        self.key_to_sym = _invert_dict(keys)
+    def __init__(self, ui_keys=None):
+
+        if ui_keys is not None:
+            self.add_ui_keymap(ui_keys)
     
     def _conv_keymap(self, keymap):
         """Takes a dict, converts symbols ("pgup" etc) to their corresponding
@@ -96,22 +96,51 @@ class ControlSet:
             key = self.sym_to_key.get(sym, sym)
             _keymap[key] = keymap[sym]
         return _keymap
+
+    def _try_conv_special_keymaps(self):
+        try:
+            self.special_keys_to_cmds = self._conv_keymap(
+                    self.special_syms_to_cmds
+                    )
+            self.special_cmds_to_keys = _invert_dict(self.special_keys_to_cmds)
+        except AttributeError:
+            pass
+
+    def _try_conv_move_keymaps(self):
+        """If both move keymaps and UI keymap has been provided, this
+        generates maps of the UI-specific key representations to commands,
+        and vice versa. Otherwise, it does nothing.
+        """
+        try:
+            self.move_keys_to_cmds = self._conv_keymap(self.move_syms_to_cmds)
+            self.move_cmds_to_keys = _invert_dict(self.move_keys_to_cmds)
+        except AttributeError:
+            pass
+
+    def add_ui_keymap(self, keys):
+        """Takes a dict mapping symbols to UI-specific string representations
+        of those symbols.
+        """
+        self.sym_to_key = keys
+        self.key_to_sym = _invert_dict(keys)
+
+        # If move keymaps were added before UI keymap, we can now work out
+        # the maps of actual keys (as opp symbols) to commands and vice versa
+        self._try_conv_special_keymaps()
+        self._try_conv_move_keymaps()
+
     
     def add_move_keys(self, keymap):
         """Takes a dict mapping keys (symbols as apt) to movement commands"""
         self.move_syms_to_cmds = keymap
         self.move_cmds_to_syms = _invert_dict(keymap)
-        keys = self._conv_keymap(keymap)
-        self.move_keys_to_cmds = keys
-        self.move_cmds_to_keys = _invert_dict(keys)
+        self._try_conv_move_keymaps()
     
     def add_special_keys(self, keymap):
         """Takes a dict mapping keys (symbols as apt) to special commands"""
         self.special_syms_to_cmds = keymap
         self.special_cmds_to_syms = _invert_dict(keymap)
-        keys = self._conv_keymap(keymap)
-        self.special_keys_to_cmds = keys
-        self.special_cmds_to_keys = _invert_dict(keys)
+        self._try_conv_special_keymaps()
 
     def get_special_cmd(self, key):
         return self.special_keys_to_cmds[key]
@@ -161,7 +190,7 @@ classic_special_keys = {
         'q':    'quit'
         }
 
-def get_classic_ctrls(keymap):
+def get_classic_ctrls(keymap=None):
     ctrls = ControlSet(keymap)
     ctrls.add_move_keys(classic_move_keys)
     ctrls.add_special_keys(classic_special_keys)
@@ -191,7 +220,7 @@ new_special_keys = {
         'esc':  'quit'
         }
 
-def get_new_ctrls(keymap):
+def get_new_ctrls(keymap=None):
     ctrls = ControlSet(keymap)
     ctrls.add_move_keys(new_move_keys)
     ctrls.add_special_keys(new_special_keys)

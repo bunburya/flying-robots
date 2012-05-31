@@ -26,6 +26,7 @@ if not isdir(CONF_DIR):
     mkdir(CONF_DIR)
 
 DEFAULT_UI = 'tkinter'
+DEFAULT_CTRLSET = 'old'
 
 def get_conf_filepath(filename):
     """Takes a filename as an argument, returns the full path to that file,

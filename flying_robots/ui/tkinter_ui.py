@@ -53,10 +53,15 @@ class InfoView(Dialog):
 
 class ControlView(InfoView):
 
+    def __init__(self, parent, title):
+        self.ctrl_text = parent.controls.control_help
+        InfoView.__init__(self, parent, title)
+
     def body(self, master):
+        print(master.children)
         control_msg = tkinter.Message(
                 master,
-                text=controls,
+                text=self.ctrl_text,
                 font=('Courier', 10)
                 )
         control_msg.grid(row=0, column=0)
@@ -124,9 +129,10 @@ class GameInterface(tkinter.Frame):
             'no':   False
             }
     
-    def __init__(self, config, master=None):
+    def __init__(self, config, ctrlset, master=None):
         tkinter.Frame.__init__(self, master)
-        self.controls = get_new_ctrls(special_keymap)
+        self.controls = ctrlset
+        self.controls.add_ui_keymap(special_keymap)
         self.hiscore_game = config['game'].getboolean('hiscore')
         self.gen_charmap()
         self.game_over = False
@@ -419,7 +425,7 @@ class GameInterface(tkinter.Frame):
             return
         key = event.keysym
         try:
-            if self.controls.is_move_key(key):
+            if self.controls.is_move_key(key.lower()):
                 self.move(event)
             elif self.controls.is_special_key(key):
                 self.nonmove_cmds[self.controls.get_special_cmd(key)]()
@@ -495,8 +501,8 @@ class GameInterface(tkinter.Frame):
     def prompt_goto_elev(self):
         self.view_elev(askinteger('', 'Goto:'))
 
-def start_interface(config):
+def start_interface(config, ctrlset):
     root = tkinter.Tk()
     root.title('{} v{}'.format(long_name, version))
-    ui = GameInterface(config, root)
+    ui = GameInterface(config, ctrlset, root)
     ui.mainloop()

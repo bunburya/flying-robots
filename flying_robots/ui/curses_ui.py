@@ -8,7 +8,10 @@ from ..exceptions import LevelComplete, GameOver
 from ..chars import gameclass
 from ..hs_handler import get_scores, add_score
 
+from ..debug import log
+
 from ._common import charmap, xy_move_keys
+from ._controls import get_classic_ctrls
 
 def ctrl(ch):
     return chr(ord(ch)-96)
@@ -19,8 +22,14 @@ def unctrl(ch):
 def is_ctrl(ch):
     return 1 <= ord(ch) <= 26
 
-class GameInterface:
+special_keymap = {
+        'pgup': chr(curses.KEY_NPAGE),
+        'pgdn': chr(curses.KEY_PPAGE),
+        'esc':  chr(27)
+        }
     
+class GameInterface:
+
     info_win_width = 18
     
     charmap = charmap
@@ -31,8 +40,10 @@ class GameInterface:
         'n':    False
         }
     
-    def __init__(self, stdscr, config):
+    def __init__(self, stdscr, config, ctrlset):
         self.stdscr = stdscr
+        self.controls = ctrlset
+        self.controls.add_ui_keymap(special_keymap)
         my, mx = stdscr.getmaxyx()      # size of screen
         gy = config['grid'].getint('y') + 2 # size required for grid
         gx = config['grid'].getint('x') + 2 + self.info_win_width
@@ -66,15 +77,15 @@ class GameInterface:
     def setup_nonmove_cmds(self):
         """Here we bind keys to their functions."""
         self.nonmove_cmds = {
-            'q':                    self.prompt_quit,
-            chr(curses.KEY_NPAGE):  self.view_next_elev,
-            chr(curses.KEY_PPAGE):  self.view_prev_elev,
-            't':                    self.teleport,
-            'p':                    self.view_player_elev,
-            'w':                    self.wait,
-            'g':                    self.prompt_goto_elev,
-            's':                    self.toggle_sticky_view,
-            'f':                    self.toggle_afap
+            'quit':     self.prompt_quit,
+            'next':     self.view_next_elev,
+            'prev':     self.view_prev_elev,
+            'tele':     self.teleport,
+            'player':   self.view_player_elev,
+            'wait':     self.wait,
+            'goto':     self.prompt_goto_elev,
+            'sticky':   self.toggle_sticky_view,
+            'afap':     self.toggle_afap
             }
     
     def play_again(self):
@@ -124,10 +135,12 @@ class GameInterface:
             self.stdscr.refresh()
 
     def handle_cmd(self, cmd):
-        if unctrl(cmd).lower() in self.xy_move_keys:
+        key = unctrl(cmd).lower()
+        if self.controls.is_move_key(key):
             self.move(cmd)
-        elif cmd in self.nonmove_cmds:
-            self.nonmove_cmds[cmd]()
+        elif self.controls.is_special_key(key):
+            log(self.controls.get_special_cmd(key))
+            self.nonmove_cmds[self.controls.get_special_cmd(cmd)]()
         self.update_info()
     
     def move(self, cmd):
@@ -137,8 +150,9 @@ class GameInterface:
             z = 1
         else:
             z = 0
-        x, y = self.xy_move_keys[unctrl(cmd).lower()]
-        self.game.move_player(x, y, z)
+        self.game.move_player(
+                *self.controls.get_move_xyz(unctrl(cmd).lower(), z)
+                )
         self.update_grid()
     
     def teleport(self):
@@ -249,5 +263,5 @@ class GameInterface:
             print(msg, file=_file)
         quit(status)
 
-def start_interface(config):
-    curses.wrapper(lambda s: GameInterface(s, config))
+def start_interface(config, ctrlset):
+    curses.wrapper(lambda s: GameInterface(s, config, ctrlset))
