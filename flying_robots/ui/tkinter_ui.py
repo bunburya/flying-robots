@@ -13,10 +13,10 @@ from ..exceptions import LevelComplete, GameOver
 from ..chars import gameclass
 from ..hs_handler import get_scores, add_score
 from ..metadata import (short_name, long_name, description, version,
-        controls, license_name, license, author, homepage_url)
+        license_name, license, author, homepage_url)
 
 from ._common import charmap, xy_move_keys
-from ._controls import get_classic_ctrls, get_new_ctrls
+from .controls import get_classic_ctrls, get_new_ctrls
 
 GFX_DIR = join(dirname(__file__), 'gfx')
 
@@ -131,6 +131,7 @@ class GameInterface(tkinter.Frame):
     
     def __init__(self, config, ctrlset, master=None):
         tkinter.Frame.__init__(self, master)
+        self.config = config
         self.controls = ctrlset
         self.controls.add_ui_keymap(special_keymap)
         self.hiscore_game = config['game'].getboolean('hiscore')
@@ -149,6 +150,12 @@ class GameInterface(tkinter.Frame):
         self.setup_widgets()
         self.update_grid()
         self.update_info()
+
+    def set_new_ctrls(self):
+        self.controls = get_new_ctrls(special_keymap)
+
+    def set_old_ctrls(self):
+        self.controls = get_classic_ctrls(special_keymap)
 
     def gen_charmap(self):
         _charmap = {}
@@ -307,6 +314,27 @@ class GameInterface(tkinter.Frame):
                 label='New game',
                 command=self.play_again
                 )
+
+        ctrlmenu = tkinter.Menu(gamebutton, tearoff=0)
+        self.ctrlset_var = tkinter.StringVar()
+        ctrlmenu.add_radiobutton(
+                label='Old',
+                command=self.set_old_ctrls,
+                variable=self.ctrlset_var,
+                value='old'
+                )
+        ctrlmenu.add_radiobutton(
+                label='New',
+                command=self.set_new_ctrls,
+                variable=self.ctrlset_var,
+                value='new'
+                )
+        self.ctrlset_var.set(self.config['game']['ctrlset'])
+        gamemenu.add_cascade(
+                label='Controls',
+                menu=ctrlmenu
+                )
+
         gamemenu.add_command(
                 label='Quit',
                 command=self.prompt_quit

@@ -11,7 +11,7 @@ from ..hs_handler import get_scores, add_score
 from ..debug import log
 
 from ._common import charmap, xy_move_keys
-from ._controls import get_classic_ctrls
+from .controls import get_classic_ctrls
 
 def ctrl(ch):
     return chr(ord(ch)-96)

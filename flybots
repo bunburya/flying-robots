@@ -11,7 +11,7 @@ from flying_robots.config import (
         DEFAULT_UI, DEFAULT_CTRLSET
         )
 
-from flying_robots.ui._controls import get_new_ctrls, get_classic_ctrls
+from flying_robots.ui.controls import get_new_ctrls, get_classic_ctrls
 
 parser = ArgumentParser()
 parser.add_argument('-H', '--controls', dest='controls', action='store_true',
@@ -42,8 +42,8 @@ parser.add_argument('--old-ctrls', help='use the classic control set (similar'
 
 options = parser.parse_args()
 
-ctrlset_opt = options.ctrlset or DEFAULT_CTRLSET
-if ctrlset_opt == 'old':
+options.ctrlset = options.ctrlset or DEFAULT_CTRLSET
+if options.ctrlset == 'old':
     ctrlset = get_classic_ctrls()
 else:
     ctrlset = get_new_ctrls()
@@ -55,9 +55,9 @@ if options.scores_only:
     from flying_robots.hs_handler import print_scores
     print_scores()
 
-ui = options.ui or DEFAULT_UI
+options.ui = options.ui or DEFAULT_UI
 try:
-    if ui == 'tkinter':
+    if options.ui == 'tkinter':
         from flying_robots.ui.tkinter_ui import start_interface
     else:
         from flying_robots.ui.curses_ui import start_interface
@@ -81,6 +81,7 @@ conf = get_config(options.conf_file)
 optmap = {
     'name':         ('player', 'name', False),
     'start_level':  ('game', 'start_level', True),
+    'ctrlset':      ('game', 'ctrlset', False),
     'x':            ('grid', 'x', True),
     'y':            ('grid', 'y', True),
     'z':            ('grid', 'z', True)

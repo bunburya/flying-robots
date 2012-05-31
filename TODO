@@ -4,8 +4,6 @@ TODO ASAP:
 
   - Clean up the way each interface interacts with ControlSet.
 
-  - Changing controls in-game.
-
   - Saving and loading control sets.
 
 - Packaging for various operating systems.
