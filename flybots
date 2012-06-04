@@ -66,7 +66,7 @@ except ImportError:
             'Please ensure you have the necessary packages installed, '
             'or try specifying an alternative interface '
             '(use the --help flag for info on specifying an interface).'
-            ''.format(ui),
+            ''.format(options.ui),
             file=stderr)
     quit(1)
 

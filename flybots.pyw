@@ -8,8 +8,10 @@ else:
 
 from flying_robots.config import (
         get_config, apply_opts_to_conf, validate_conf,
-        DEFAULT_UI
+        DEFAULT_UI, DEFAULT_CTRLSET
         )
+
+from flying_robots.ui.controls import get_new_ctrls, get_classic_ctrls
 
 parser = ArgumentParser()
 parser.add_argument('-H', '--controls', dest='controls', action='store_true',
@@ -32,19 +34,30 @@ parser.add_argument('--curses', help='use the curses interface if on a system'
         ' that supports it', dest='ui', action='store_const', const='curses')
 parser.add_argument('--tkinter', help='use the tkinter interface (default)',
         dest='ui', action='store_const', const='tkinter')
+parser.add_argument('--new-ctrls', help='use the new control set',
+        dest='ctrlset', action='store_const', const='new')
+parser.add_argument('--old-ctrls', help='use the classic control set (similar'
+        ' to that used in old games like bsd-robots, nethack etc)',
+        dest='ctrlset', action='store_const', const='old')
 
 options = parser.parse_args()
+
+options.ctrlset = options.ctrlset or DEFAULT_CTRLSET
+if options.ctrlset == 'old':
+    ctrlset = get_classic_ctrls()
+else:
+    ctrlset = get_new_ctrls()
+
 if options.controls:
-    from flying_robots.metadata import controls
-    print(controls)
+    print(ctrlset.control_help)
     exit(0)
 if options.scores_only:
     from flying_robots.hs_handler import print_scores
     print_scores()
 
-ui = options.ui or DEFAULT_UI
+options.ui = options.ui or DEFAULT_UI
 try:
-    if ui == 'tkinter':
+    if options.ui == 'tkinter':
         from flying_robots.ui.tkinter_ui import start_interface
     else:
         from flying_robots.ui.curses_ui import start_interface
@@ -53,7 +66,7 @@ except ImportError:
             'Please ensure you have the necessary packages installed, '
             'or try specifying an alternative interface '
             '(use the --help flag for info on specifying an interface).'
-            ''.format(ui),
+            ''.format(options.ui),
             file=stderr)
     quit(1)
 
@@ -68,6 +81,7 @@ conf = get_config(options.conf_file)
 optmap = {
     'name':         ('player', 'name', False),
     'start_level':  ('game', 'start_level', True),
+    'ctrlset':      ('game', 'ctrlset', False),
     'x':            ('grid', 'x', True),
     'y':            ('grid', 'y', True),
     'z':            ('grid', 'z', True)
@@ -75,4 +89,4 @@ optmap = {
 
 apply_opts_to_conf(conf, options, optmap)
 validate_conf(conf)
-start_interface(conf)
+start_interface(conf, ctrlset)
