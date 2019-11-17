@@ -4,19 +4,19 @@ from os.path import isdir, isfile, join, expanduser
 if version_info.minor >= 2:
     from configparser import ConfigParser, ParsingError
 else:
-    from .compat import ConfigParser, ParsingError
+    from flying_robots.compat import ConfigParser, ParsingError
 
-from .metadata import short_name
+from flying_robots.metadata import app_name
 
 if os_name == 'nt':
-    CONF_DIR = join(getenv('AppData'), short_name)
+    CONF_DIR = join(getenv('AppData'), app_name)
 elif os_name == 'posix':
     dotconf = expanduser('~/.config')
     if not isdir(dotconf):
         mkdir(dotconf)
     CONF_DIR = join(
             getenv('XDG_CONFIG_HOME', dotconf),
-            short_name
+            app_name
             )
 else:
     print('Sorry, your operating system is not yet supported.', file=stderr)

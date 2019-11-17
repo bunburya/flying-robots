@@ -8,15 +8,15 @@ from tkinter.messagebox import askquestion, showinfo
 from tkinter.simpledialog import askinteger, Dialog
 from tkinter.font import Font
 
-from ..game import Game
-from ..exceptions import LevelComplete, GameOver
-from ..chars import gameclass
-from ..hs_handler import get_scores, add_score
-from ..metadata import (short_name, long_name, description, version,
-        license_name, license, author, homepage_url)
+from flying_robots.game import Game
+from flying_robots.exceptions import LevelComplete, GameOver
+from flying_robots.chars import gameclass
+from flying_robots.hs_handler import get_scores, add_score
+from flying_robots.metadata import (app_name, description, version,
+        license_name, license_text, author, homepage_url)
 
-from ._common import charmap, xy_move_keys
-from .controls import get_classic_ctrls, get_new_ctrls
+from flying_robots.ui._common import charmap, xy_move_keys
+from flying_robots.ui.controls import get_classic_ctrls, get_new_ctrls
 
 GFX_DIR = join(dirname(__file__), 'gfx')
 
@@ -69,7 +69,7 @@ class ControlView(InfoView):
 class AboutView(InfoView):
 
     about_str = '\n'.join([
-        '{} ({}) v{}'.format(long_name, short_name, version),
+        '{} v{}'.format(app_name, version),
         description,
         'Created by {}.'.format(author),
         'Published under a {} license.'.format(license_name),
@@ -114,7 +114,7 @@ class LicenseView(InfoView):
         # gives us the line wrapping we need here.
         license_msg = tkinter.Label(
             master,
-            text=license,
+            text=license_text,
             justify=tkinter.LEFT
             )
         license_msg.grid()
@@ -530,6 +530,6 @@ class GameInterface(tkinter.Frame):
 
 def start_interface(config, ctrlset):
     root = tkinter.Tk()
-    root.title('{} v{}'.format(long_name, version))
+    root.title('{} v{}'.format(app_name, version))
     ui = GameInterface(config, ctrlset, root)
     ui.mainloop()

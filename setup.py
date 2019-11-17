@@ -1,7 +1,8 @@
 from os import name as os_name
-from distutils.core import setup
+from os.path import join
+from setuptools import setup
 from flying_robots.metadata import (
-        short_name,
+        app_name,
         version,
         author,
         homepage_url,
@@ -11,15 +12,15 @@ from flying_robots.metadata import (
         )
 
 if os_name == 'nt':
-    scriptname = 'flybots.pyw'
+    scriptname = join('scripts', 'flying-robots.pyw')
 else:
-    scriptname = 'flybots'
+    scriptname = join('scripts', 'flying-robots')
 
 setup(
-        name=short_name,
+        name=app_name,
         version=version,
         author=author,
-        packages=['', 'flying_robots', 'flying_robots.ui'],
+        packages=['flying_robots', 'flying_robots.ui'],
         package_data={'flying_robots.ui': ['gfx/*.gif']},
         scripts=[scriptname],
         url=homepage_url,

@@ -1,7 +1,7 @@
-from .chars import gameclass
-from .grid import GameGrid
-from .exceptions import BadTileError, LevelComplete, GameOver
-from .config import get_config, calc_enemies
+from flying_robots.chars import gameclass
+from flying_robots.grid import GameGrid
+from flying_robots.exceptions import BadTileError, LevelComplete, GameOver
+from flying_robots.config import get_config, calc_enemies
 
 class Game:
 

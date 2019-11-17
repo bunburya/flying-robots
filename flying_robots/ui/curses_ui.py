@@ -3,15 +3,16 @@
 from sys import stdout, stderr
 import curses
 
-from ..game import Game
-from ..exceptions import LevelComplete, GameOver
-from ..chars import gameclass
-from ..hs_handler import get_scores, add_score
+from flying_robots.game import Game
+from flying_robots.exceptions import LevelComplete, GameOver
+from flying_robots.chars import gameclass
+from flying_robots.hs_handler import get_scores, add_score
+from flying_robots.metadata import app_name
 
-from ..debug import log
+from flying_robots.debug import log
 
-from ._common import charmap, xy_move_keys
-from .controls import get_classic_ctrls
+from flying_robots.ui._common import charmap, xy_move_keys
+from flying_robots.ui.controls import get_classic_ctrls
 
 def ctrl(ch):
     return chr(ord(ch)-96)
@@ -48,7 +49,7 @@ class GameInterface:
         gy = config['grid'].getint('y') + 2 # size required for grid
         gx = config['grid'].getint('x') + 2 + self.info_win_width
         if (my < gy) or (mx < gx):
-            self.quit(1, 'flybots needs a screen of at least {}x{}.'.format(gx, gy), stderr)
+            self.quit(1, '{} needs a screen of at least {}x{}.'.format(app_name, gx, gy), stderr)
         self.hiscore_game = config['game'].getboolean('hiscore')
         curses.noecho()
         curses.cbreak()

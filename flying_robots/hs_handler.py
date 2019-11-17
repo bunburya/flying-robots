@@ -1,6 +1,6 @@
 from os.path import join, isfile
 
-from .config import get_conf_filepath
+from flying_robots.config import get_conf_filepath
 
 HS_FILE = get_conf_filepath('hiscores')
 SCORE_LIMIT = 20

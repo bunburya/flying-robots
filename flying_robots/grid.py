@@ -3,8 +3,8 @@ from copy import deepcopy
 from itertools import product
 from operator import add
 
-from .chars import Player, Robot, Junk, gameclass
-from .exceptions import BadTileError, LevelComplete, GameOver
+from flying_robots.chars import Player, Robot, Junk, gameclass
+from flying_robots.exceptions import BadTileError, LevelComplete, GameOver
 
 class GameGrid:
     

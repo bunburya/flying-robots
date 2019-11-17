@@ -1,12 +1,11 @@
-long_name = 'FlyingRobots'
-short_name = 'flybots'
-version = '0.6.0'
+app_name = 'flying-robots'
+version = '0.2.0'
 description = 'A three-dimensional clone of the classic bsd-robots game.'
 author = 'Alan Bunbury'
 homepage_url = 'http://bunburya.github.com/FlyingRobots'
 download_url = 'https://github.com/bunburya/FlyingRobots'
 license_name = 'MIT'
-license = """Copyright (C) 2012 {}
+license_text = """Copyright (C) 2012 {}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
