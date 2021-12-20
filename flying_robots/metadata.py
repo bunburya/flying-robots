@@ -5,7 +5,7 @@ author = 'Alan Bunbury'
 homepage_url = 'http://bunburya.github.com/FlyingRobots'
 download_url = 'https://github.com/bunburya/FlyingRobots'
 license_name = 'MIT'
-license_text = """Copyright (C) 2012 {}
+license_text = """Copyright (C) 2021 {}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

@@ -9,12 +9,11 @@ from flying_robots.metadata import (
         description,
         download_url,
         license_name
-        )
+)
 
+scripts = [join('scripts', 'flying-robots')]
 if os_name == 'nt':
-    scriptname = join('scripts', 'flying-robots.pyw')
-else:
-    scriptname = join('scripts', 'flying-robots')
+    scripts.append(join('scripts', 'flying-robots.bat'))
 
 setup(
         name=app_name,
@@ -22,9 +21,9 @@ setup(
         author=author,
         packages=['flying_robots', 'flying_robots.ui'],
         package_data={'flying_robots.ui': ['gfx/*.gif']},
-        scripts=[scriptname],
+        scripts=scripts,
         url=homepage_url,
         description=description,
         download_url=download_url,
         license=license_name
-        )
+)
