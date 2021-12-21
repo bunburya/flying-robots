@@ -19,8 +19,8 @@ installed, or if you would rather play in the terminal.
 You can clone the git repository and install using `pip`.
 
 ```bash
-git clone git@github.com:bunburya/FlyingRobots.git
-cd FlyingRobots
+git clone https://github.com/bunburya/flying-robots.git
+cd flying-robots
 pip install -e .
 ```
 
